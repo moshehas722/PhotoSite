@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Masonry from 'react-masonry-css';
-import { fetchPhotos } from '../api';
 import type { Photo } from '../types';
 import { PhotoCard } from './PhotoCard';
 import { PhotoLightbox } from './PhotoLightbox';
@@ -13,22 +12,16 @@ const BREAKPOINTS = {
   600: 1,
 };
 
-export function Gallery() {
-  const [photos, setPhotos] = useState<Photo[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+interface Props {
+  photos: Photo[];
+}
+
+export function Gallery({ photos }: Props) {
   const [lightboxIndex, setLightboxIndex] = useState(-1);
 
-  useEffect(() => {
-    fetchPhotos()
-      .then(setPhotos)
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading) return <div className="gallery-status">Loading photos…</div>;
-  if (error) return <div className="gallery-status gallery-status--error">Error: {error}</div>;
-  if (photos.length === 0) return <div className="gallery-status">No photos found in this folder.</div>;
+  if (photos.length === 0) {
+    return <div className="gallery-status">No photos in this folder.</div>;
+  }
 
   return (
     <>

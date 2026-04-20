@@ -9,6 +9,20 @@ export interface DrivePhoto {
   thumbnailLink?: string;
 }
 
+export interface DriveFolder {
+  id: string;
+  name: string;
+}
+
+export interface FolderContents {
+  id: string;
+  name: string;
+  photos: DrivePhoto[];
+  folders: DriveFolder[];
+}
+
+const FOLDER_MIME = 'application/vnd.google-apps.folder';
+
 function getAuthClient() {
   const keyPath = process.env.GOOGLE_SERVICE_ACCOUNT_KEY_PATH;
   if (!keyPath) throw new Error('GOOGLE_SERVICE_ACCOUNT_KEY_PATH is not set');
@@ -59,6 +73,46 @@ export async function listPhotos(folderId: string): Promise<DrivePhoto[]> {
   return photos;
 }
 
+export async function listFolderContents(folderId: string): Promise<FolderContents> {
+  const auth = getAuthClient();
+  const drive = google.drive({ version: 'v3', auth });
+
+  const nameRes = await drive.files.get({ fileId: folderId, fields: 'name' });
+  const folderName = nameRes.data.name ?? 'Folder';
+
+  const photos: DrivePhoto[] = [];
+  const folders: DriveFolder[] = [];
+  let pageToken: string | undefined;
+
+  do {
+    const res = await drive.files.list({
+      q: `'${folderId}' in parents and trashed = false and (mimeType contains 'image/' or mimeType = '${FOLDER_MIME}')`,
+      fields: 'nextPageToken, files(id, name, mimeType, thumbnailLink)',
+      pageSize: 100,
+      pageToken,
+      orderBy: 'folder,name',
+    });
+
+    for (const file of res.data.files ?? []) {
+      if (!file.id || !file.name || !file.mimeType) continue;
+      if (file.mimeType === FOLDER_MIME) {
+        folders.push({ id: file.id, name: file.name });
+      } else {
+        photos.push({
+          id: file.id,
+          name: file.name,
+          mimeType: file.mimeType,
+          thumbnailLink: file.thumbnailLink ?? undefined,
+        });
+      }
+    }
+
+    pageToken = res.data.nextPageToken ?? undefined;
+  } while (pageToken);
+
+  return { id: folderId, name: folderName, photos, folders };
+}
+
 export async function getPhotoStream(fileId: string) {
   const auth = getAuthClient();
   const drive = google.drive({ version: 'v3', auth });
@@ -69,6 +123,13 @@ export async function getPhotoStream(fileId: string) {
   );
 
   return { stream: res.data, mimeType: res.headers['content-type'] as string };
+}
+
+export async function getFileThumbnailLink(fileId: string): Promise<string | null> {
+  const auth = getAuthClient();
+  const drive = google.drive({ version: 'v3', auth });
+  const res = await drive.files.get({ fileId, fields: 'thumbnailLink' });
+  return res.data.thumbnailLink ?? null;
 }
 
 export async function getThumbnailStream(thumbnailLink: string) {

@@ -1,7 +1,7 @@
-import type { Photo } from './types';
+import type { FolderContents } from './types';
 
-export async function fetchPhotos(): Promise<Photo[]> {
-  const res = await fetch('/api/photos');
-  if (!res.ok) throw new Error(`Failed to fetch photos: ${res.statusText}`);
+export async function fetchFolderContents(folderId: string): Promise<FolderContents> {
+  const res = await fetch(`/api/folders/${encodeURIComponent(folderId)}`);
+  if (!res.ok) throw new Error(`Failed to fetch folder: ${res.statusText}`);
   return res.json();
 }

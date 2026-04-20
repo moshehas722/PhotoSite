@@ -1,43 +1,24 @@
 import { Router, Request, Response } from 'express';
-import { listPhotos, getPhotoStream, getThumbnailStream } from '../services/googleDrive';
+import {
+  getPhotoStream,
+  getThumbnailStream,
+  getFileThumbnailLink,
+} from '../services/googleDrive';
 
 export const photosRouter = Router();
 
-const getFolderId = (): string => {
-  const id = process.env.GOOGLE_DRIVE_FOLDER_ID;
-  if (!id) throw new Error('GOOGLE_DRIVE_FOLDER_ID is not set');
-  return id;
-};
-
-photosRouter.get('/', async (_req: Request, res: Response) => {
-  try {
-    const photos = await listPhotos(getFolderId());
-    res.json(photos.map(({ id, name, mimeType }) => ({ id, name, mimeType })));
-  } catch (err) {
-    console.error('Failed to list photos:', err);
-    res.status(500).json({ error: 'Failed to list photos' });
-  }
-});
-
 photosRouter.get('/:id/thumbnail', async (req: Request, res: Response) => {
   try {
-    const photos = await listPhotos(getFolderId());
-    const photo = photos.find((p) => p.id === req.params.id);
+    const thumbnailLink = await getFileThumbnailLink(req.params.id);
 
-    if (!photo) {
-      res.status(404).json({ error: 'Photo not found' });
-      return;
-    }
-
-    if (!photo.thumbnailLink) {
-      // Fall back to full image if no thumbnail
+    if (!thumbnailLink) {
       const { stream, mimeType } = await getPhotoStream(req.params.id);
       res.setHeader('Content-Type', mimeType ?? 'image/jpeg');
       stream.pipe(res);
       return;
     }
 
-    const { stream, mimeType } = await getThumbnailStream(photo.thumbnailLink);
+    const { stream, mimeType } = await getThumbnailStream(thumbnailLink);
     res.setHeader('Content-Type', mimeType ?? 'image/jpeg');
     res.setHeader('Cache-Control', 'public, max-age=3600');
     stream.pipe(res);

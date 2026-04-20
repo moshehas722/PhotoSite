@@ -1,5 +1,6 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import type { Photo } from '../types';
+import { useAuth } from '../auth/AuthContext';
 
 interface CartContextValue {
   items: Photo[];
@@ -26,6 +27,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
   }, [items]);
+
+  const { user } = useAuth();
+  const prevUserRef = useRef(user);
+  useEffect(() => {
+    if (prevUserRef.current && !user) {
+      setItems([]);
+      localStorage.removeItem(STORAGE_KEY);
+    }
+    prevUserRef.current = user;
+  }, [user]);
 
   const add = (photo: Photo) => {
     setItems((prev) => (prev.some((p) => p.id === photo.id) ? prev : [...prev, photo]));

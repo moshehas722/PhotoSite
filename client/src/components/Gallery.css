@@ -1,0 +1,20 @@
+.masonry-grid {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.masonry-grid__column {
+  background-clip: padding-box;
+}
+
+.gallery-status {
+  text-align: center;
+  padding: 60px 20px;
+  color: #888;
+  font-size: 1rem;
+}
+
+.gallery-status--error {
+  color: #e05555;
+}

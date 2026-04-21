@@ -101,28 +101,51 @@
   }
 }
 
-.photo-card__purchased {
+.photo-card__download {
   position: absolute;
   top: 8px;
   right: 8px;
-  padding: 4px 8px;
-  border-radius: 12px;
-  background: #2ecc71;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(42, 108, 240, 0.92);
   color: #fff;
-  font-size: 0.7rem;
-  font-weight: 600;
-  pointer-events: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  opacity: 1;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.photo-card__download:hover {
+  background: #1e55c9;
+  transform: scale(1.08);
+}
+
+.photo-card__download-icon {
+  display: block;
 }
 
 .photo-card__pending {
   position: absolute;
   top: 8px;
   right: 8px;
-  padding: 4px 8px;
-  border-radius: 12px;
-  background: #d4881e;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(212, 136, 30, 0.95);
   color: #fff;
-  font-size: 0.7rem;
-  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   pointer-events: none;
+  opacity: 1;
+}
+
+.photo-card__pending-icon {
+  display: block;
+  flex-shrink: 0;
 }

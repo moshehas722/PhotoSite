@@ -1,4 +1,5 @@
 import Lightbox from 'yet-another-react-lightbox';
+import Zoom from 'yet-another-react-lightbox/plugins/zoom';
 import 'yet-another-react-lightbox/styles.css';
 import type { Photo } from '../types';
 import { useCart } from '../cart/CartContext';
@@ -39,6 +40,7 @@ export function PhotoLightbox({ photos, index, onClose, onNavigate }: Props) {
 
   return (
     <Lightbox
+      plugins={[Zoom]}
       open={index >= 0}
       close={onClose}
       index={index}

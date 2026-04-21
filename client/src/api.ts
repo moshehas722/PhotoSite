@@ -157,6 +157,7 @@ export interface AdminUserStats {
   picture?: string;
   loginCount: number;
   lastLoginAt: number | null;
+  fullAccess: boolean;
 }
 
 export async function fetchAdminUsers(): Promise<AdminUserStats[]> {
@@ -164,4 +165,20 @@ export async function fetchAdminUsers(): Promise<AdminUserStats[]> {
   if (!res.ok) throw new Error(`Failed to fetch users: ${res.statusText}`);
   const data = (await res.json()) as { users: AdminUserStats[] };
   return data.users;
+}
+
+export async function setUserFullAccess(userSub: string, fullAccess: boolean): Promise<void> {
+  const res = await fetch(
+    `/api/admin/users/${encodeURIComponent(userSub)}/full-access`,
+    {
+      method: 'PUT',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fullAccess }),
+    }
+  );
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({})) as { error?: string };
+    throw new Error(body.error ?? `Failed to update full access: ${res.statusText}`);
+  }
 }

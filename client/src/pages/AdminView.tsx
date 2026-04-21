@@ -15,6 +15,7 @@ import {
   addAdmin,
   removeAdmin,
   fetchAdminUsers,
+  setUserFullAccess,
   type AdminSettings,
   type SiteProfile,
   type AdminEntry,
@@ -374,9 +375,11 @@ function formatLoginTime(ms: number | null): string {
 }
 
 function UsersPanel() {
+  const { user: currentUser, refreshUser } = useAuth();
   const [users, setUsers] = useState<AdminUserStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [busySub, setBusySub] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -394,10 +397,27 @@ function UsersPanel() {
     void load();
   }, [load]);
 
+  const handleFullAccessToggle = async (userSub: string, next: boolean) => {
+    setBusySub(userSub);
+    setError(null);
+    try {
+      await setUserFullAccess(userSub, next);
+      setUsers((prev) =>
+        prev.map((u) => (u.userSub === userSub ? { ...u, fullAccess: next } : u))
+      );
+      if (currentUser?.sub === userSub) await refreshUser();
+    } catch {
+      setError('Failed to update full access.');
+    } finally {
+      setBusySub(null);
+    }
+  };
+
   return (
     <section className="admin-users">
       <p className="admin-users__intro">
-        Users who have signed in at least once, sorted by login count (highest first).
+        Users who have signed in at least once, sorted by login count (highest first).{' '}
+        <strong>Full access</strong> lets a user download every photo in full quality without checkout; they do not see the cart.
       </p>
       {error && <div className="admin-view__error">{error}</div>}
       {loading ? (
@@ -417,6 +437,9 @@ function UsersPanel() {
                   Logins
                 </th>
                 <th scope="col">Last login</th>
+                <th scope="col" className="admin-users__th--access">
+                  Full access
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -441,6 +464,19 @@ function UsersPanel() {
                   <td className="admin-users__email">{u.email || '—'}</td>
                   <td className="admin-users__numeric">{u.loginCount}</td>
                   <td className="admin-users__muted">{formatLoginTime(u.lastLoginAt)}</td>
+                  <td className="admin-users__access-cell">
+                    <label className="admin-users__access-label">
+                      <input
+                        type="checkbox"
+                        checked={u.fullAccess}
+                        disabled={busySub === u.userSub}
+                        onChange={(e) =>
+                          void handleFullAccessToggle(u.userSub, e.target.checked)
+                        }
+                        aria-label={`Full access for ${u.email || u.name}`}
+                      />
+                    </label>
+                  </td>
                 </tr>
               ))}
             </tbody>

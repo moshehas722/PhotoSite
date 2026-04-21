@@ -5,6 +5,7 @@ import {
   getFileThumbnailLink,
 } from '../services/googleDrive';
 import { hasPurchased } from '../services/transactions';
+import { getFullAccess } from '../services/userLoginStats';
 
 export const photosRouter = Router();
 
@@ -36,7 +37,8 @@ photosRouter.get('/:id/full', async (req: Request, res: Response) => {
     return;
   }
   try {
-    const owned = await hasPurchased(userSub, req.params.id);
+    const owned =
+      (await hasPurchased(userSub, req.params.id)) || (await getFullAccess(userSub));
     if (!owned) {
       res.status(403).json({ error: 'Photo not purchased' });
       return;

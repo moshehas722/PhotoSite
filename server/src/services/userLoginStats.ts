@@ -10,6 +10,7 @@ export interface UserLoginListEntry {
   picture?: string;
   loginCount: number;
   lastLoginAt: number | null;
+  fullAccess: boolean;
 }
 
 const tsToMillis = (v: unknown): number | null =>
@@ -32,8 +33,30 @@ export async function listUsersByLoginCount(): Promise<UserLoginListEntry[]> {
       picture: typeof d.picture === 'string' ? d.picture : undefined,
       loginCount: Number.isFinite(n) ? n : 0,
       lastLoginAt: tsToMillis(d.lastLoginAt),
+      fullAccess: d.fullAccess === true,
     };
   });
+}
+
+export async function getFullAccess(userSub: string): Promise<boolean> {
+  try {
+    const snap = await firestore.collection(COLLECTION).doc(userSub).get();
+    if (!snap.exists) return false;
+    return snap.data()?.fullAccess === true;
+  } catch (err) {
+    console.error('Firestore getFullAccess failed:', err);
+    return false;
+  }
+}
+
+export async function setUserFullAccess(userSub: string, fullAccess: boolean): Promise<void> {
+  await firestore.collection(COLLECTION).doc(userSub).set(
+    {
+      fullAccess,
+      updatedAt: FieldValue.serverTimestamp(),
+    },
+    { merge: true }
+  );
 }
 
 /**

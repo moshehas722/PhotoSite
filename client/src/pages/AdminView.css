@@ -494,6 +494,29 @@
   white-space: nowrap;
 }
 
+.admin-users__th--access {
+  text-align: center;
+  width: 120px;
+}
+
+.admin-users__access-cell {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.admin-users__access-label {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-users__access-label input {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
 @media (max-width: 600px) {
   .tx-row__date {
     display: none;

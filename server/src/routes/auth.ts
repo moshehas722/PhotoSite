@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { OAuth2Client } from 'google-auth-library';
 import { isAdminEmail } from '../services/admin';
-import { recordLogin } from '../services/userLoginStats';
+import { getFullAccess, recordLogin } from '../services/userLoginStats';
 
 export const authRouter = Router();
 
@@ -58,6 +58,7 @@ authRouter.post('/google', async (req: Request, res: Response) => {
       name: payload.name,
       picture: payload.picture,
       isAdmin: await isAdminEmail(payload.email),
+      fullAccess: await getFullAccess(payload.sub),
     };
 
     res.json({ user: req.session.user });
@@ -74,9 +75,10 @@ authRouter.post('/google', async (req: Request, res: Response) => {
 });
 
 authRouter.get('/me', async (req: Request, res: Response) => {
-  // Re-evaluate isAdmin from current config so admin changes take effect without re-login.
+  // Re-evaluate isAdmin and fullAccess so admin/config changes apply without re-login.
   if (req.session.user) {
     req.session.user.isAdmin = await isAdminEmail(req.session.user.email);
+    req.session.user.fullAccess = await getFullAccess(req.session.user.sub);
   }
   res.json({ user: req.session.user ?? null });
 });

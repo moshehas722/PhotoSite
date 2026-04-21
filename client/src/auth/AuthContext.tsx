@@ -6,6 +6,8 @@ export interface AuthUser {
   name: string;
   picture?: string;
   isAdmin: boolean;
+  /** Set by server: can download all photos in full quality (admin grant). */
+  fullAccess?: boolean;
 }
 
 interface AuthContextValue {
@@ -13,6 +15,7 @@ interface AuthContextValue {
   loading: boolean;
   login: (credential: string) => Promise<void>;
   logout: () => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -46,8 +49,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   };
 
+  const refreshUser = async () => {
+    const res = await fetch('/api/auth/me', { credentials: 'include' });
+    if (!res.ok) return;
+    const data = (await res.json()) as { user: AuthUser | null };
+    setUser(data.user);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

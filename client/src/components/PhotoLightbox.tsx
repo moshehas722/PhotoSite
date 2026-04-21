@@ -18,14 +18,17 @@ export function PhotoLightbox({ photos, index, onClose, onNavigate }: Props) {
   const { user } = useAuth();
   const { add, remove, has } = useCart();
   const { approvedIds, pendingIds } = useTransactions();
+  const fullAccess = user?.fullAccess === true;
 
   const slides = photos.map((p) => ({
     ...p,
-    src: approvedIds.has(p.id)
-      ? `/api/photos/${p.id}/full`
-      : `/api/photos/${p.id}/thumbnail`,
-    purchased: approvedIds.has(p.id),
-    pending: !approvedIds.has(p.id) && pendingIds.has(p.id),
+    src:
+      fullAccess || approvedIds.has(p.id)
+        ? `/api/photos/${p.id}/full`
+        : `/api/photos/${p.id}/thumbnail`,
+    purchased: fullAccess || approvedIds.has(p.id),
+    pending:
+      !fullAccess && !approvedIds.has(p.id) && pendingIds.has(p.id),
   }));
 
   const toggleCart = (e: React.MouseEvent, photo: Photo) => {

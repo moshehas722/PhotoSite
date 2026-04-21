@@ -12,9 +12,23 @@ import {
   getAdminEmailList, addAdminEmail, removeAdminEmail,
   getProfile, setProfile,
 } from '../services/config';
+import { setUserFullAccess } from '../services/userLoginStats';
+
 export const adminRouter = Router();
 
 adminRouter.use(requireAdmin);
+
+adminRouter.put('/users/:sub/full-access', async (req: Request, res: Response) => {
+  try {
+    const raw = (req.body as { fullAccess?: unknown })?.fullAccess;
+    const fullAccess = raw === true;
+    await setUserFullAccess(req.params.sub, fullAccess);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Failed to set full access:', err);
+    res.status(500).json({ error: 'Failed to update full access' });
+  }
+});
 
 adminRouter.get('/transactions/pending', async (_req: Request, res: Response) => {
   try {

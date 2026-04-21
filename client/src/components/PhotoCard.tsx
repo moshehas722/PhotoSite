@@ -14,8 +14,9 @@ export function PhotoCard({ photo, onClick }: Props) {
   const { user } = useAuth();
   const { approvedIds, pendingIds } = useTransactions();
   const inCart = has(photo.id);
-  const purchased = approvedIds.has(photo.id);
-  const pending = !purchased && pendingIds.has(photo.id);
+  const fullAccess = user?.fullAccess === true;
+  const purchased = approvedIds.has(photo.id) || fullAccess;
+  const pending = !fullAccess && !approvedIds.has(photo.id) && pendingIds.has(photo.id);
 
   const toggleCart = (e: React.MouseEvent) => {
     e.stopPropagation();

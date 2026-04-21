@@ -33,8 +33,12 @@ function HeaderCart() {
       <Link to="/purchases" className="app-header__icon-btn" aria-label="My Purchases">
         <ShoppingIcon />
       </Link>
-      <CartButton onClick={() => setCartOpen(true)} />
-      <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
+      {!user.fullAccess && (
+        <>
+          <CartButton onClick={() => setCartOpen(true)} />
+          <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
+        </>
+      )}
     </>
   );
 }

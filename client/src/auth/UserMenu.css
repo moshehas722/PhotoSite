@@ -102,68 +102,6 @@
   border-top: 1px solid var(--border);
 }
 
-/* ── Theme toggle row ──────────────────────────────────────── */
-
-.user-menu__theme {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 14px;
-  border-top: 1px solid var(--border);
-  gap: 10px;
-}
-
-.user-menu__theme-label {
-  font-size: 0.85rem;
-  color: var(--text-label);
-  white-space: nowrap;
-}
-
-.user-menu__toggle {
-  position: relative;
-  width: 36px;
-  height: 20px;
-  flex-shrink: 0;
-}
-
-.user-menu__toggle input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-  position: absolute;
-}
-
-.user-menu__toggle-track {
-  position: absolute;
-  inset: 0;
-  border-radius: 10px;
-  background: var(--bg-btn);
-  border: 1px solid var(--border);
-  cursor: pointer;
-  transition: background 0.2s, border-color 0.2s;
-}
-
-.user-menu__toggle input:checked + .user-menu__toggle-track {
-  background: #4a8ef0;
-  border-color: #4a8ef0;
-}
-
-.user-menu__toggle-track::after {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: #fff;
-  transition: transform 0.2s;
-}
-
-.user-menu__toggle input:checked + .user-menu__toggle-track::after {
-  transform: translateX(16px);
-}
-
 .user-menu__login-btn {
   background: none;
   border: none;

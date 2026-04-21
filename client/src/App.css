@@ -73,6 +73,13 @@ body {
   gap: 16px;
 }
 
+.app-header__left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
 .app-header__right {
   display: flex;
   align-items: center;
@@ -109,12 +116,19 @@ body {
   padding: 8px 10px;
   border-radius: 6px;
   text-decoration: none;
+  cursor: pointer;
   transition: background 0.15s, color 0.15s;
 }
 
 .app-header__icon-btn:hover {
   background: var(--bg-btn);
   color: var(--text);
+}
+
+.theme-toggle__icon {
+  font-size: 1.15rem;
+  line-height: 1;
+  display: block;
 }
 
 .app-header h1 {

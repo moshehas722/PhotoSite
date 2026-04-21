@@ -3,15 +3,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  /* Let YARL zoom plugin own pinch; avoid browser gesture stealing */
+  touch-action: none;
 }
 
 .lightbox-slide__img {
-  max-width: 95vw;
-  max-height: 95vh;
+  max-width: min(95vw, 100%);
+  max-height: min(95vh, 100%);
   width: auto;
-  height: 95vh;
+  height: auto;
   object-fit: contain;
   image-rendering: auto;
+  touch-action: none;
 }
 
 /* Grid cards keep actions top-right; lightbox toolbar (zoom + close) is top-right — use top-left here */

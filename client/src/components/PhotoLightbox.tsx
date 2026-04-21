@@ -64,6 +64,12 @@ export function PhotoLightbox({ photos, index, onClose, onNavigate }: Props) {
   return (
     <Lightbox
       plugins={[Zoom]}
+      zoom={{
+        /** Thumbnails are often ~screen-sized; without this, maxZoom≈1 and pinch does nothing */
+        maxZoomPixelRatio: 4,
+        /** Better pinch handling on mobile Safari / Chrome */
+        pinchZoomV4: true,
+      }}
       open={index >= 0}
       close={onClose}
       index={index}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { fetchFolderContents } from '../api';
 import type { Folder } from '../types';
 
@@ -8,10 +8,13 @@ interface Props {
   name: string;
   depth: number;
   defaultExpanded?: boolean;
+  onSelect?: () => void;
 }
 
-export function FolderTreeNode({ folderId, name, depth, defaultExpanded = false }: Props) {
-  const { folderId: currentId } = useParams<{ folderId?: string }>();
+export function FolderTreeNode({ folderId, name, depth, defaultExpanded = false, onSelect }: Props) {
+  const location = useLocation();
+  const pathParts = location.pathname.split('/');
+  const currentId = pathParts[2];
   const activeId = currentId ?? 'root';
 
   const [expanded, setExpanded] = useState(defaultExpanded);
@@ -62,7 +65,7 @@ export function FolderTreeNode({ folderId, name, depth, defaultExpanded = false 
         >
           {hasNoChildren ? '·' : expanded ? '▾' : '▸'}
         </button>
-        <Link to={linkTo} className="tree-node__link">
+        <Link to={linkTo} className="tree-node__link" onClick={onSelect}>
           <span className="tree-node__icon">{folderId === 'root' ? '🏠' : '🖼️'}</span>
           <span className="tree-node__name">{name}</span>
         </Link>
@@ -77,6 +80,7 @@ export function FolderTreeNode({ folderId, name, depth, defaultExpanded = false 
               folderId={child.id}
               name={child.name}
               depth={depth + 1}
+              onSelect={onSelect}
             />
           ))}
         </div>

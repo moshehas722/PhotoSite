@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { fetchFolderContents } from '../api';
 import type { FolderContents } from '../types';
 import { Gallery } from './Gallery';
+import './FolderView.css';
 
 export function FolderView() {
   const { folderId } = useParams<{ folderId?: string }>();
@@ -29,7 +30,29 @@ export function FolderView() {
 
   return (
     <div className="folder-view">
-      <h2 className="folder-view__title">{contents.name}</h2>
+      <div className="folder-view__header">
+        <div className="folder-view__breadcrumb">
+          {contents.parentId && contents.parentName && (
+            <Link to={`/folder/${contents.parentId}`} className="folder-view__parent-link">
+              ← {contents.parentName}
+            </Link>
+          )}
+        </div>
+        <h2 className="folder-view__title">{targetId === 'root' ? 'Home' : contents.name}</h2>
+        {contents.folders.length > 0 && (
+          <div className="folder-view__subfolders">
+            {contents.folders.map((folder) => (
+              <Link
+                key={folder.id}
+                to={`/folder/${folder.id}`}
+                className="folder-view__subfolder-link"
+              >
+                {folder.name}
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
       {contents.photos.length === 0 && contents.folders.length > 0 ? (
         <div className="gallery-status">
           This folder has no photos — pick a subfolder in the sidebar.

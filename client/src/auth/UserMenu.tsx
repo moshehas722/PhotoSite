@@ -61,15 +61,18 @@ export function UserMenu() {
   }
 
   return (
-    <div className="user-menu">
+    <div className="user-menu user-menu--login">
       <GoogleLogin
         useOneTap
         onSuccess={(response) => {
           if (response.credential) void login(response.credential);
         }}
         onError={() => console.warn('Google login failed')}
-        size="medium"
-        theme="filled_black"
+        render={({ onClick }) => (
+          <button className="user-menu__login-btn" onClick={onClick}>
+            Sign in
+          </button>
+        )}
       />
     </div>
   );

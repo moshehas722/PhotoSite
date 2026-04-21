@@ -14,6 +14,9 @@ import { TransactionsProvider } from './transactions/TransactionsContext';
 import { PurchasesView } from './pages/PurchasesView';
 import { AdminView } from './pages/AdminView';
 import { AboutView } from './pages/AboutView';
+import { InfoIcon } from './icons/InfoIcon';
+import { ShoppingIcon } from './icons/ShoppingIcon';
+import { HomeIcon } from './icons/HomeIcon';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID ?? '';
 
@@ -25,7 +28,9 @@ function HeaderCart() {
 
   return (
     <>
-      <Link to="/purchases" className="app-header__link app-header__link--desktop">My Purchases</Link>
+      <Link to="/purchases" className="app-header__icon-btn" aria-label="My Purchases">
+        <ShoppingIcon />
+      </Link>
       <CartButton onClick={() => setCartOpen(true)} />
       <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
     </>
@@ -44,9 +49,13 @@ function App() {
                 <header className="app-header">
                   <Link to="/" className="app-header__title" aria-label="Home" />
                   <div className="app-header__right">
-                    <Link to="/about" className="app-header__link app-header__link--desktop">About</Link>
+                    <Link to="/about" className="app-header__icon-btn" aria-label="About">
+                      <InfoIcon />
+                    </Link>
                     <HeaderCart />
-                    <Link to="/" className="app-header__icon-btn" aria-label="Home">🏠</Link>
+                    <Link to="/" className="app-header__icon-btn" aria-label="Home">
+                      <HomeIcon />
+                    </Link>
                     <UserMenu />
                   </div>
                 </header>

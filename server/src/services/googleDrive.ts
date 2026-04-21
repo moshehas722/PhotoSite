@@ -25,6 +25,8 @@ export interface FolderContents {
   name: string;
   photos: DrivePhoto[];
   folders: DriveFolder[];
+  parentId?: string;
+  parentName?: string;
 }
 
 const FOLDER_MIME = 'application/vnd.google-apps.folder';
@@ -84,8 +86,19 @@ export async function listFolderContents(folderId: string): Promise<FolderConten
   const auth = getAuthClient();
   const drive = google.drive({ version: 'v3', auth });
 
-  const nameRes = await drive.files.get({ fileId: folderId, fields: 'name' });
+  const nameRes = await drive.files.get({ fileId: folderId, fields: 'name,parents' });
   const folderName = nameRes.data.name ?? 'Folder';
+  const parentId = nameRes.data.parents?.[0];
+
+  let parentName: string | undefined;
+  if (parentId) {
+    try {
+      const parentRes = await drive.files.get({ fileId: parentId, fields: 'name' });
+      parentName = parentRes.data.name ?? undefined;
+    } catch {
+      // Parent may not be accessible, ignore
+    }
+  }
 
   const photos: DrivePhoto[] = [];
   const folders: DriveFolder[] = [];
@@ -117,7 +130,7 @@ export async function listFolderContents(folderId: string): Promise<FolderConten
     pageToken = res.data.nextPageToken ?? undefined;
   } while (pageToken);
 
-  return { id: folderId, name: folderName, photos, folders };
+  return { id: folderId, name: folderName, photos, folders, parentId, parentName };
 }
 
 export async function listRecentFolders(rootId: string, limit: number): Promise<RecentFolder[]> {

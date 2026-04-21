@@ -20,4 +20,6 @@ export interface FolderContents {
   name: string;
   photos: Photo[];
   folders: Folder[];
+  parentId?: string;
+  parentName?: string;
 }

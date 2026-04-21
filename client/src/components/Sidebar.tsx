@@ -21,7 +21,7 @@ export function Sidebar() {
       </button>
       {open && <div className="sidebar__backdrop" onClick={close} />}
       <aside className={`sidebar ${open ? 'sidebar--open' : ''}`}>
-        <WhatsNew />
+        <WhatsNew onSelect={close} />
         <nav className="sidebar__nav">
           <Link to="/" className="sidebar__nav-link" onClick={close}>Home</Link>
           <Link to="/about" className="sidebar__nav-link" onClick={close}>About</Link>
@@ -30,7 +30,7 @@ export function Sidebar() {
         </nav>
         <div className="sidebar__header">Galleries</div>
         <div className="sidebar__tree">
-          <FolderTreeNode folderId="root" name="Home" depth={0} defaultExpanded />
+          <FolderTreeNode folderId="root" name="Home" depth={0} defaultExpanded onSelect={close} />
         </div>
       </aside>
     </>

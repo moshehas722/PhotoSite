@@ -8,10 +8,11 @@
 }
 
 .sidebar__header {
-  font-size: 0.75rem;
+  font-size: 24px;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--text-muted);
+  color: var(--text);
   padding: 0 16px 12px;
   border-bottom: 1px solid var(--border);
   margin-bottom: 8px;
@@ -41,7 +42,7 @@
 }
 
 .tree-node {
-  font-size: 0.9rem;
+  font-size: 35px;
 }
 
 .tree-node__row {
@@ -98,8 +99,7 @@
 }
 
 .tree-node__icon {
-  font-size: 0.9rem;
-  flex-shrink: 0;
+  display: none;
 }
 
 .tree-node__name {
@@ -125,10 +125,14 @@
   padding: 4px 16px;
   color: var(--text-2);
   text-decoration: none;
-  font-size: 0.9rem;
+  font-size: 35px;
   border-radius: 4px;
   margin: 1px 4px;
   transition: background 0.15s ease;
+}
+
+.whats-new__icon {
+  display: none;
 }
 
 .whats-new__item:hover {

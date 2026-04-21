@@ -145,35 +145,7 @@
   text-overflow: ellipsis;
 }
 
-.sidebar__nav {
-  display: none;
-}
-
-.sidebar__nav-link {
-  display: flex;
-  align-items: center;
-  padding: 8px 16px;
-  color: var(--text-2);
-  text-decoration: none;
-  font-size: 0.9rem;
-  border-radius: 4px;
-  margin: 1px 4px;
-  transition: background 0.15s ease;
-}
-
-.sidebar__nav-link:hover {
-  background: var(--bg-hover);
-}
-
 @media (max-width: 768px) {
-  .sidebar__nav {
-    display: flex;
-    flex-direction: column;
-    padding: 4px 0 8px;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 8px;
-  }
-
   .sidebar__toggle {
     display: inline-flex;
     margin: 12px 16px 0;

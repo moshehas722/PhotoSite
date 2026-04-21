@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import {
@@ -380,6 +380,12 @@ function UsersPanel() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busySub, setBusySub] = useState<string | null>(null);
+  const [fullAccessOnly, setFullAccessOnly] = useState(false);
+
+  const displayedUsers = useMemo(
+    () => (fullAccessOnly ? users.filter((u) => u.fullAccess) : users),
+    [users, fullAccessOnly]
+  );
 
   const load = useCallback(async () => {
     try {
@@ -419,11 +425,27 @@ function UsersPanel() {
         Users who have signed in at least once, sorted by login count (highest first).{' '}
         <strong>Full access</strong> lets a user download every photo in full quality without checkout; they do not see the cart.
       </p>
+      {!loading && users.length > 0 && (
+        <div className="admin-users__toolbar">
+          <label className="admin-users__filter">
+            <input
+              type="checkbox"
+              checked={fullAccessOnly}
+              onChange={(e) => setFullAccessOnly(e.target.checked)}
+            />
+            <span>Show only users with full access</span>
+          </label>
+        </div>
+      )}
       {error && <div className="admin-view__error">{error}</div>}
       {loading ? (
         <div className="admin-view__empty">Loading…</div>
       ) : users.length === 0 ? (
         <div className="admin-view__empty">No login records yet.</div>
+      ) : displayedUsers.length === 0 ? (
+        <div className="admin-view__empty">
+          No users with full access. Turn off the filter to see everyone.
+        </div>
       ) : (
         <div className="admin-users__table-wrap">
           <table className="admin-users__table">
@@ -443,7 +465,7 @@ function UsersPanel() {
               </tr>
             </thead>
             <tbody>
-              {users.map((u) => (
+              {displayedUsers.map((u) => (
                 <tr key={u.userSub}>
                   <td>
                     <div className="admin-users__cell-user">

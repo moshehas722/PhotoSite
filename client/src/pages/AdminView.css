@@ -410,7 +410,27 @@
 .admin-users__intro {
   color: var(--text-muted);
   font-size: 0.9rem;
-  margin: 0 0 16px;
+  margin: 0 0 12px;
+}
+
+.admin-users__toolbar {
+  margin-bottom: 14px;
+}
+
+.admin-users__filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--text-2);
+  user-select: none;
+}
+
+.admin-users__filter input {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
 }
 
 .admin-users__table-wrap {

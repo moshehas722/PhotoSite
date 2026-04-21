@@ -54,6 +54,11 @@
   font-size: 1rem;
 }
 
+.user-menu__trigger--full-access .user-menu__avatar,
+.user-menu__trigger--full-access .user-menu__avatar--fallback {
+  box-shadow: 0 0 0 3px #2ecc71;
+}
+
 .user-menu__backdrop {
   position: fixed;
   inset: 0;

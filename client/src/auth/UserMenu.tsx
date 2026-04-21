@@ -22,7 +22,12 @@ export function UserMenu() {
   if (user) {
     return (
       <div className="user-menu">
-        <button className="user-menu__trigger" onClick={() => setOpen(o => !o)} aria-label="Account menu">
+        <button
+          className={`user-menu__trigger ${user.fullAccess ? 'user-menu__trigger--full-access' : ''}`}
+          onClick={() => setOpen(o => !o)}
+          aria-label="Account menu"
+          title={user.fullAccess ? 'Full access — all photos available in full quality' : undefined}
+        >
           {user.picture
             ? <img className="user-menu__avatar" src={user.picture} alt="" referrerPolicy="no-referrer" />
             : <span className="user-menu__avatar user-menu__avatar--fallback">👤</span>}

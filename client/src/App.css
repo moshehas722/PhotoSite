@@ -27,14 +27,6 @@ body {
   gap: 16px;
 }
 
-.app-header__nav {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  flex: 1;
-  padding-left: 24px;
-}
-
 .app-header__right {
   display: flex;
   align-items: center;
@@ -94,6 +86,10 @@ body {
 
   .app-header h1 {
     font-size: 1.2rem;
+  }
+
+  .app-header__link--desktop {
+    display: none;
   }
 
   .app-body {

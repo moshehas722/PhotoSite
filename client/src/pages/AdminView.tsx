@@ -229,33 +229,36 @@ function TxRow({
   const busy = busyId === tx.id;
   const rejecting = rejectingId === tx.id;
 
+  const picLabel =
+    tx.photoIds.length === 1 ? '1 pic' : `${tx.photoIds.length} pics`;
+
   return (
     <li className="tx-row">
       <div className="tx-row__main">
         <button className="tx-row__expand" onClick={() => setExpanded(e => !e)} aria-label="Toggle photos">
           <span className={`tx-row__chevron ${expanded ? 'tx-row__chevron--open' : ''}`}>›</span>
         </button>
-        <div className="tx-row__info">
-          <span className="tx-row__name">{tx.userName}</span>
-          <span className="tx-row__email">{tx.userEmail}</span>
-        </div>
-        <span className="tx-row__date">{new Date(tx.createdAt).toLocaleDateString()}</span>
-        <span className="tx-row__count">{tx.photoIds.length} photo{tx.photoIds.length === 1 ? '' : 's'}</span>
-        <div className="tx-row__actions">
-          <button
-            className="admin-view__btn admin-view__btn--primary admin-view__btn--sm"
-            disabled={busy}
-            onClick={() => onApprove(tx.id)}
-          >
-            Approve
-          </button>
-          <button
-            className="admin-view__btn admin-view__btn--sm"
-            disabled={busy}
-            onClick={() => onStartReject(tx.id)}
-          >
-            Reject
-          </button>
+        <span className="tx-row__name">{tx.userName}</span>
+        <span className="tx-row__email">{tx.userEmail}</span>
+        <div className="tx-row__meta-line">
+          <span className="tx-row__date">{new Date(tx.createdAt).toLocaleDateString()}</span>
+          <span className="tx-row__count">{picLabel}</span>
+          <div className="tx-row__actions">
+            <button
+              className="admin-view__btn admin-view__btn--primary admin-view__btn--sm"
+              disabled={busy}
+              onClick={() => onApprove(tx.id)}
+            >
+              Approve
+            </button>
+            <button
+              className="admin-view__btn admin-view__btn--sm"
+              disabled={busy}
+              onClick={() => onStartReject(tx.id)}
+            >
+              Reject
+            </button>
+          </div>
         </div>
       </div>
 
@@ -454,11 +457,18 @@ function UsersPanel() {
                 <th scope="col" className="admin-users__th admin-users__th--user">
                   User
                 </th>
-                <th scope="col">Email</th>
-                <th scope="col" className="admin-users__th--numeric">
+                <th scope="col" className="admin-users__col-hide-mobile">
+                  Email
+                </th>
+                <th
+                  scope="col"
+                  className="admin-users__th--numeric admin-users__col-hide-mobile"
+                >
                   Logins
                 </th>
-                <th scope="col">Last login</th>
+                <th scope="col" className="admin-users__col-hide-mobile">
+                  Last login
+                </th>
                 <th scope="col" className="admin-users__th--access">
                   Full access
                 </th>
@@ -483,9 +493,15 @@ function UsersPanel() {
                       <span className="admin-users__name">{u.name || '—'}</span>
                     </div>
                   </td>
-                  <td className="admin-users__email">{u.email || '—'}</td>
-                  <td className="admin-users__numeric">{u.loginCount}</td>
-                  <td className="admin-users__muted">{formatLoginTime(u.lastLoginAt)}</td>
+                  <td className="admin-users__email admin-users__col-hide-mobile">
+                    {u.email || '—'}
+                  </td>
+                  <td className="admin-users__numeric admin-users__col-hide-mobile">
+                    {u.loginCount}
+                  </td>
+                  <td className="admin-users__muted admin-users__col-hide-mobile">
+                    {formatLoginTime(u.lastLoginAt)}
+                  </td>
                   <td className="admin-users__access-cell">
                     <label className="admin-users__access-label">
                       <input
@@ -622,7 +638,7 @@ function AdministratorsPanel() {
   );
 }
 
-type Tab = 'transactions' | 'gdrive' | 'profile' | 'users' | 'administrators';
+type Tab = 'transactions' | 'users' | 'gdrive' | 'profile' | 'administrators';
 
 export function AdminView() {
   const { user, loading } = useAuth();
@@ -641,6 +657,12 @@ export function AdminView() {
           Pending Transactions
         </button>
         <button
+          className={`admin-tabs__tab ${tab === 'users' ? 'admin-tabs__tab--active' : ''}`}
+          onClick={() => setTab('users')}
+        >
+          Users
+        </button>
+        <button
           className={`admin-tabs__tab ${tab === 'gdrive' ? 'admin-tabs__tab--active' : ''}`}
           onClick={() => setTab('gdrive')}
         >
@@ -653,12 +675,6 @@ export function AdminView() {
           Profile
         </button>
         <button
-          className={`admin-tabs__tab ${tab === 'users' ? 'admin-tabs__tab--active' : ''}`}
-          onClick={() => setTab('users')}
-        >
-          Users
-        </button>
-        <button
           className={`admin-tabs__tab ${tab === 'administrators' ? 'admin-tabs__tab--active' : ''}`}
           onClick={() => setTab('administrators')}
         >
@@ -667,9 +683,9 @@ export function AdminView() {
       </div>
 
       {tab === 'transactions' && <TransactionsPanel />}
+      {tab === 'users' && <UsersPanel />}
       {tab === 'gdrive' && <SettingsPanel />}
       {tab === 'profile' && <ProfilePanel />}
-      {tab === 'users' && <UsersPanel />}
       {tab === 'administrators' && <AdministratorsPanel />}
     </div>
   );

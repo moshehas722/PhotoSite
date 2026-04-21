@@ -5,11 +5,12 @@ import { PhotoCard } from './PhotoCard';
 import { PhotoLightbox } from './PhotoLightbox';
 import './Gallery.css';
 
+/** Masonry picks the smallest breakpoint where window width <= key (see react-masonry-css). */
 const BREAKPOINTS = {
   default: 4,
   1200: 3,
+  /** Phones / narrow tablets: 2 columns down to smallest widths */
   900: 2,
-  600: 1,
 };
 
 interface Props {

@@ -1,20 +1,38 @@
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from './AuthContext';
 import './UserMenu.css';
 
 export function UserMenu() {
   const { user, loading, login, logout } = useAuth();
+  const [open, setOpen] = useState(false);
 
   if (loading) return null;
 
   if (user) {
     return (
       <div className="user-menu">
-        {user.picture && <img className="user-menu__avatar" src={user.picture} alt="" referrerPolicy="no-referrer" />}
-        <span className="user-menu__name">{user.name}</span>
-        <button className="user-menu__logout" onClick={() => void logout()}>
-          Sign out
+        <button className="user-menu__trigger" onClick={() => setOpen(o => !o)} aria-label="Account menu">
+          {user.picture
+            ? <img className="user-menu__avatar" src={user.picture} alt="" referrerPolicy="no-referrer" />
+            : <span className="user-menu__avatar user-menu__avatar--fallback">👤</span>}
         </button>
+        {open && (
+          <>
+            <div className="user-menu__backdrop" onClick={() => setOpen(false)} />
+            <div className="user-menu__dropdown">
+              {user.isAdmin && (
+                <Link to="/admin" className="user-menu__item" onClick={() => setOpen(false)}>
+                  <span className="user-menu__item-icon">⚙️</span> Admin
+                </Link>
+              )}
+              <button className="user-menu__item user-menu__item--signout" onClick={() => void logout()}>
+                Sign out
+              </button>
+            </div>
+          </>
+        )}
       </div>
     );
   }

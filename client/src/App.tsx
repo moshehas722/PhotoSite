@@ -25,9 +25,6 @@ function HeaderCart() {
   return (
     <>
       <Link to="/purchases" className="app-header__link app-header__link--desktop">My Purchases</Link>
-      {user.isAdmin && (
-        <Link to="/admin" className="app-header__link app-header__link--desktop">Admin</Link>
-      )}
       <CartButton onClick={() => setCartOpen(true)} />
       <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
     </>
@@ -46,8 +43,8 @@ function App() {
                   <Link to="/" className="app-header__title"><h1>Photo Album</h1></Link>
                   <div className="app-header__right">
                     <Link to="/about" className="app-header__link app-header__link--desktop">About</Link>
-                    <UserMenu />
                     <HeaderCart />
+                    <UserMenu />
                   </div>
                 </header>
                 <div className="app-body">

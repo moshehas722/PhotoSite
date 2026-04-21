@@ -42,7 +42,14 @@
       "Bash(gcloud logging *)",
       "Bash(curl -s https://maiphotos-server-gb6cblhgma-uc.a.run.app/api/transactions/mine?status=pending)",
       "Bash(curl -sI https://maiphotos-server-gb6cblhgma-uc.a.run.app/api/auth/me)",
-      "Bash(curl -sI https://maiphotos.web.app)"
+      "Bash(curl -sI https://maiphotos.web.app)",
+      "Bash(curl -s http://localhost:3001/api/folders/root)",
+      "Bash(curl -s http://localhost:3001/api/folders/root -w \"\\\\nHTTP %{http_code}\")",
+      "Bash(npx tsx -e ' *)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\('email:', d.get\\('client_email'\\)\\); print\\('project:', d.get\\('project_id'\\)\\); print\\('type:', d.get\\('type'\\)\\)\")",
+      "PowerShell($logs = Get-Content 'C:\\\\Users\\\\Moshe\\\\.claude\\\\projects\\\\C--Dev-repo-PhotoSite\\\\f7c1a1a2-3558-41d3-8206-7f8ff70b9084\\\\tool-results\\\\mcp-Claude_Preview-preview_logs-1776768570259.txt' | ConvertFrom-Json; $logs | Select-Object -Last 30 | ForEach-Object { $_.text })",
+      "Bash(powershell -Command \"Get-Content 'C:\\\\Dev\\\\repo\\\\PhotoSite\\\\maiphotos-d46ea447b7bc.json' | ConvertFrom-Json | Select-Object type, project_id, client_email, private_key_id\")",
+      "Bash(powershell -Command \"Get-Content 'C:\\\\Dev\\\\repo\\\\PhotoSite\\\\secrets\\\\maiphotos-b4f1b2aaa16a.json' | ConvertFrom-Json | Select-Object type, client_email, project_id\")"
     ]
   }
 }

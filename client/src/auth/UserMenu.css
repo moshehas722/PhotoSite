@@ -1,7 +1,18 @@
 .user-menu {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+}
+
+.user-menu__trigger {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .user-menu__avatar {
@@ -9,41 +20,64 @@
   height: 32px;
   border-radius: 50%;
   object-fit: cover;
+  display: block;
 }
 
-.user-menu__name {
-  font-size: 0.9rem;
-  color: #ddd;
-  max-width: 160px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.user-menu__avatar--fallback {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #2a2a2a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
 }
 
-.user-menu__logout {
-  background: transparent;
-  color: #aaa;
+.user-menu__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+}
+
+.user-menu__dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: #1a1a1a;
   border: 1px solid #2a2a2a;
-  padding: 6px 12px;
-  border-radius: 6px;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  min-width: 140px;
+  z-index: 51;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.user-menu__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  color: #ddd;
+  text-decoration: none;
+  font-size: 0.9rem;
+  background: none;
+  border: none;
   cursor: pointer;
-  font-size: 0.85rem;
-  transition: background 0.15s ease, color 0.15s ease;
+  text-align: left;
+  width: 100%;
+  transition: background 0.15s;
   white-space: nowrap;
 }
 
-.user-menu__logout:hover {
-  background: #222;
-  color: #eee;
+.user-menu__item:hover {
+  background: #252525;
+  color: #fff;
 }
 
-@media (max-width: 600px) {
-  .user-menu__name {
-    display: none;
-  }
-
-  .user-menu__logout {
-    padding: 6px 8px;
-    font-size: 0.8rem;
-  }
+.user-menu__item--signout {
+  color: #aaa;
+  border-top: 1px solid #2a2a2a;
 }

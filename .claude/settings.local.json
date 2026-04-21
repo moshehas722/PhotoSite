@@ -28,7 +28,11 @@
       "Bash(gcloud firestore *)",
       "Bash(gcloud projects *)",
       "Bash(curl -s -o /dev/null -w \"GET /api/purchases \\(no auth\\): HTTP %{http_code}\\\\n\" \"https://photosite-493918.web.app/api/purchases\")",
-      "Bash(curl -s -o /dev/null -w \"GET /api/photos/XX/full \\(no auth\\): HTTP %{http_code}\\\\n\" \"https://photosite-493918.web.app/api/photos/127j8j6fTA-ZQTvKD-970Z2KoMr2y6MVi/full\")"
+      "Bash(curl -s -o /dev/null -w \"GET /api/photos/XX/full \\(no auth\\): HTTP %{http_code}\\\\n\" \"https://photosite-493918.web.app/api/photos/127j8j6fTA-ZQTvKD-970Z2KoMr2y6MVi/full\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5173/)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3001/api/folders/root)",
+      "Bash(netstat -ano)",
+      "Bash(node -e ' *)"
     ]
   }
 }

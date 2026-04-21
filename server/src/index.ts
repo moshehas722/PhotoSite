@@ -11,9 +11,23 @@ import { authRouter } from './routes/auth';
 import { purchasesRouter } from './routes/purchases';
 import { FirestoreSessionStore } from './services/sessionStore';
 
-const envPath = path.resolve(__dirname, '../../.env');
+const repoRoot = path.resolve(__dirname, '../..');
+const envPath = path.resolve(repoRoot, '.env');
 if (fs.existsSync(envPath)) {
   dotenv.config({ path: envPath });
+}
+
+// Firestore/GoogleAuth resolves GOOGLE_APPLICATION_CREDENTIALS relative to
+// process.cwd() (which is `server/` in dev). Match the convention used for
+// GOOGLE_SERVICE_ACCOUNT_KEY_PATH and resolve it from the repo root.
+if (
+  process.env.GOOGLE_APPLICATION_CREDENTIALS &&
+  !path.isAbsolute(process.env.GOOGLE_APPLICATION_CREDENTIALS)
+) {
+  process.env.GOOGLE_APPLICATION_CREDENTIALS = path.resolve(
+    repoRoot,
+    process.env.GOOGLE_APPLICATION_CREDENTIALS
+  );
 }
 
 const app = express();
@@ -35,7 +49,9 @@ app.use('/api', (_req, res, next) => {
   next();
 });
 
-const sessionStore = isProduction
+const useFirestoreSessions =
+  isProduction || process.env.USE_FIRESTORE_SESSIONS === 'true';
+const sessionStore = useFirestoreSessions
   ? new FirestoreSessionStore(new Firestore())
   : undefined;
 

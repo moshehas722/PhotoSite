@@ -76,7 +76,7 @@ export function PhotoLightbox({ photos, index, onClose, onNavigate }: Props) {
       slides={slides}
       on={{ view: ({ index: i }) => onNavigate(i) }}
       render={{
-        slide: ({ slide }) => {
+        slide: ({ slide, offset }) => {
           const s = slide as (typeof slides)[number];
           const inCart = has(s.id);
 
@@ -154,15 +154,17 @@ export function PhotoLightbox({ photos, index, onClose, onNavigate }: Props) {
                   </svg>
                 </span>
               )}
-              {s.purchased ? null : s.pending && user ? (
-                <div className="lightbox-slide__hint lightbox-slide__hint--pending">
-                  Awaiting admin approval. Full resolution will be available after approval.
-                </div>
-              ) : (
-                <div className="lightbox-slide__hint">
-                  This is a low-res picture. Full-res picture will be available only after purchasing.
-                </div>
-              )}
+              {offset === 0 &&
+                !s.purchased &&
+                (s.pending && user ? (
+                  <div className="lightbox-slide__hint lightbox-slide__hint--pending">
+                    Awaiting admin approval. Full resolution will be available after approval.
+                  </div>
+                ) : (
+                  <div className="lightbox-slide__hint">
+                    This is a low-res picture. Full-res picture will be available only after purchasing.
+                  </div>
+                ))}
             </div>
           );
         },

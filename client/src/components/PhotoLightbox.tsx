@@ -1,7 +1,11 @@
 import Lightbox from 'yet-another-react-lightbox';
 import 'yet-another-react-lightbox/styles.css';
 import type { Photo } from '../types';
+import { useCart } from '../cart/CartContext';
+import { useAuth } from '../auth/AuthContext';
 import { useTransactions } from '../transactions/TransactionsContext';
+import './PhotoCard.css';
+import './PhotoLightbox.css';
 
 interface Props {
   photos: Photo[];
@@ -11,15 +15,24 @@ interface Props {
 }
 
 export function PhotoLightbox({ photos, index, onClose, onNavigate }: Props) {
-  const { approvedIds } = useTransactions();
+  const { user } = useAuth();
+  const { add, remove, has } = useCart();
+  const { approvedIds, pendingIds } = useTransactions();
 
   const slides = photos.map((p) => ({
-    id: p.id,
+    ...p,
     src: approvedIds.has(p.id)
       ? `/api/photos/${p.id}/full`
       : `/api/photos/${p.id}/thumbnail`,
     purchased: approvedIds.has(p.id),
+    pending: !approvedIds.has(p.id) && pendingIds.has(p.id),
   }));
+
+  const toggleCart = (e: React.MouseEvent, photo: Photo) => {
+    e.stopPropagation();
+    if (has(photo.id)) remove(photo.id);
+    else add(photo);
+  };
 
   return (
     <Lightbox
@@ -30,58 +43,88 @@ export function PhotoLightbox({ photos, index, onClose, onNavigate }: Props) {
       on={{ view: ({ index: i }) => onNavigate(i) }}
       render={{
         slide: ({ slide }) => {
-          const s = slide as typeof slides[number];
+          const s = slide as (typeof slides)[number];
+          const inCart = has(s.id);
+
           return (
-            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div className="lightbox-slide">
               <img
                 src={s.src}
                 alt=""
-                style={{
-                  maxWidth: '95vw',
-                  maxHeight: '95vh',
-                  width: 'auto',
-                  height: '95vh',
-                  objectFit: 'contain',
-                  imageRendering: 'auto',
-                }}
+                className="lightbox-slide__img"
               />
-              {s.purchased ? (
+              {user && !s.purchased && !s.pending && (
+                <button
+                  type="button"
+                  className={`photo-card__cart ${inCart ? 'photo-card__cart--in' : ''}`}
+                  onClick={(e) => toggleCart(e, s)}
+                  aria-label={inCart ? 'Remove from cart' : 'Add to cart'}
+                  title={inCart ? 'Remove from cart' : 'Add to cart'}
+                >
+                  {inCart ? '✓' : '+'}
+                </button>
+              )}
+              {user && s.purchased && (
                 <a
-                  href={s.src}
+                  className="photo-card__download"
+                  href={`/api/photos/${s.id}/full`}
                   download
                   onClick={(e) => e.stopPropagation()}
-                  style={{
-                    position: 'absolute',
-                    bottom: 16,
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    background: '#2a6cf0',
-                    color: '#fff',
-                    padding: '10px 20px',
-                    borderRadius: 6,
-                    fontSize: '0.95rem',
-                    textDecoration: 'none',
-                    fontWeight: 600,
-                  }}
+                  aria-label="Download full resolution"
+                  title="Download full resolution"
                 >
-                  ⬇ Download full resolution
+                  <svg
+                    className="photo-card__download-icon"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden
+                  >
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                  </svg>
                 </a>
-              ) : (
-                <div
-                  style={{
-                    position: 'absolute',
-                    bottom: 16,
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    background: 'rgba(0, 0, 0, 0.7)',
-                    color: '#fff',
-                    padding: '8px 16px',
-                    borderRadius: 6,
-                    fontSize: '0.9rem',
-                    textAlign: 'center',
-                    pointerEvents: 'none',
-                  }}
+              )}
+              {user && s.pending && (
+                <span
+                  className="photo-card__pending"
+                  title="Awaiting admin approval"
+                  role="img"
+                  aria-label="Awaiting admin approval"
                 >
+                  <svg
+                    className="photo-card__pending-icon"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden
+                  >
+                    <path d="M5 22h14" />
+                    <path d="M5 2h14" />
+                    <path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22" />
+                    <path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2" />
+                  </svg>
+                </span>
+              )}
+              {s.purchased ? null : s.pending && user ? (
+                <div className="lightbox-slide__hint lightbox-slide__hint--pending">
+                  Awaiting admin approval. Full resolution will be available after approval.
+                </div>
+              ) : (
+                <div className="lightbox-slide__hint">
                   This is a low-res picture. Full-res picture will be available only after purchasing.
                 </div>
               )}

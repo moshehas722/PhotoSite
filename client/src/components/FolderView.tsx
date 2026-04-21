@@ -3,11 +3,14 @@ import { useParams, Link } from 'react-router-dom';
 import { fetchFolderContents } from '../api';
 import type { FolderContents } from '../types';
 import { Gallery } from './Gallery';
+import { useFolderHierarchy } from '../context/FolderHierarchyContext';
 import './FolderView.css';
 
 export function FolderView() {
   const { folderId } = useParams<{ folderId?: string }>();
   const targetId = folderId ?? 'root';
+  const { getParent } = useFolderHierarchy();
+  const parent = targetId !== 'root' ? getParent(targetId) : null;
 
   const [contents, setContents] = useState<FolderContents | null>(null);
   const [loading, setLoading] = useState(true);
@@ -32,9 +35,12 @@ export function FolderView() {
     <div className="folder-view">
       <div className="folder-view__header">
         <div className="folder-view__breadcrumb">
-          {contents.parentId && contents.parentName && (
-            <Link to={`/folder/${contents.parentId}`} className="folder-view__parent-link">
-              ← {contents.parentName}
+          {parent && (
+            <Link
+              to={parent.parentId === 'root' ? '/' : `/folder/${parent.parentId}`}
+              className="folder-view__parent-link"
+            >
+              {parent.parentName}
             </Link>
           )}
         </div>

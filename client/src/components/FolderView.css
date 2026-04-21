@@ -24,22 +24,23 @@
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   font-size: 35px;
   font-weight: 300;
-  margin-bottom: 16px;
+  margin-bottom: 4px;
+  padding-left: 12px;
   color: var(--text);
 }
 
 .folder-view__subfolders {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 24px;
+  padding-left: 24px;
 }
 
 .folder-view__subfolder-link {
   display: inline-block;
-  padding: 8px 0;
-  color: var(--text-2);
+  color: var(--text-3);
   text-decoration: none;
-  font-size: 28px;
+  font-size: 16px;
   font-weight: 300;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   transition: color 0.15s ease;

@@ -14,6 +14,7 @@ import { TransactionsProvider } from './transactions/TransactionsContext';
 import { PurchasesView } from './pages/PurchasesView';
 import { AdminView } from './pages/AdminView';
 import { AboutView } from './pages/AboutView';
+import { FolderHierarchyProvider } from './context/FolderHierarchyContext';
 import { InfoIcon } from './icons/InfoIcon';
 import { ShoppingIcon } from './icons/ShoppingIcon';
 import { HomeIcon } from './icons/HomeIcon';
@@ -44,6 +45,7 @@ function App() {
       <AuthProvider>
         <TransactionsProvider>
           <CartProvider>
+            <FolderHierarchyProvider>
             <BrowserRouter>
               <div className="app">
                 <header className="app-header">
@@ -73,6 +75,7 @@ function App() {
                 </div>
               </div>
             </BrowserRouter>
+            </FolderHierarchyProvider>
           </CartProvider>
         </TransactionsProvider>
       </AuthProvider>

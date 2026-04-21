@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { fetchFolderContents } from '../api';
+import { useFolderHierarchy } from '../context/FolderHierarchyContext';
 import type { Folder } from '../types';
 
 interface Props {
@@ -16,6 +17,7 @@ export function FolderTreeNode({ folderId, name, depth, defaultExpanded = false,
   const pathParts = location.pathname.split('/');
   const currentId = pathParts[2];
   const activeId = currentId ?? 'root';
+  const { registerChildren } = useFolderHierarchy();
 
   const [expanded, setExpanded] = useState(defaultExpanded);
   const [children, setChildren] = useState<Folder[] | null>(null);
@@ -28,6 +30,7 @@ export function FolderTreeNode({ folderId, name, depth, defaultExpanded = false,
     try {
       const data = await fetchFolderContents(folderId);
       setChildren(data.folders);
+      registerChildren(folderId, name, data.folders);
       if (data.folders.length === 0) setHasNoChildren(true);
     } catch (err) {
       console.error('Failed to load folder children:', err);

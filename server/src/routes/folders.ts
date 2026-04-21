@@ -1,21 +1,17 @@
 import { Router, Request, Response } from 'express';
 import { listFolderContents, listRecentFolders } from '../services/googleDrive';
+import { getDriveFolderId } from '../services/config';
 
 export const foldersRouter = Router();
 
-const resolveFolderId = (paramId: string): string => {
-  if (paramId === 'root') {
-    const rootId = process.env.GOOGLE_DRIVE_FOLDER_ID;
-    if (!rootId) throw new Error('GOOGLE_DRIVE_FOLDER_ID is not set');
-    return rootId;
-  }
+const resolveFolderId = async (paramId: string): Promise<string> => {
+  if (paramId === 'root') return getDriveFolderId();
   return paramId;
 };
 
 foldersRouter.get('/recent', async (_req: Request, res: Response) => {
   try {
-    const rootId = process.env.GOOGLE_DRIVE_FOLDER_ID;
-    if (!rootId) throw new Error('GOOGLE_DRIVE_FOLDER_ID is not set');
+    const rootId = await getDriveFolderId();
     const folders = await listRecentFolders(rootId, 3);
     res.json({ folders });
   } catch (err) {
@@ -26,7 +22,7 @@ foldersRouter.get('/recent', async (_req: Request, res: Response) => {
 
 foldersRouter.get('/:id', async (req: Request, res: Response) => {
   try {
-    const folderId = resolveFolderId(req.params.id);
+    const folderId = await resolveFolderId(req.params.id);
     const contents = await listFolderContents(folderId);
     // Strip thumbnailLink before sending (frontend uses /api/photos/:id/thumbnail)
     res.json({

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from './AuthContext';
@@ -7,6 +7,15 @@ import './UserMenu.css';
 export function UserMenu() {
   const { user, loading, login, logout } = useAuth();
   const [open, setOpen] = useState(false);
+  const [pendingCount, setPendingCount] = useState(0);
+
+  useEffect(() => {
+    if (!user?.isAdmin) { setPendingCount(0); return; }
+    fetch('/api/admin/transactions/pending', { credentials: 'include' })
+      .then(r => r.ok ? r.json() as Promise<{ transactions: unknown[] }> : { transactions: [] })
+      .then(d => setPendingCount(d.transactions.length))
+      .catch(() => {});
+  }, [user]);
 
   if (loading) return null;
 
@@ -17,6 +26,9 @@ export function UserMenu() {
           {user.picture
             ? <img className="user-menu__avatar" src={user.picture} alt="" referrerPolicy="no-referrer" />
             : <span className="user-menu__avatar user-menu__avatar--fallback">👤</span>}
+          {pendingCount > 0 && (
+            <span className="user-menu__badge">{pendingCount > 9 ? '9+' : pendingCount}</span>
+          )}
         </button>
         {open && (
           <>

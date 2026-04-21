@@ -10,6 +10,7 @@ import { foldersRouter } from './routes/folders';
 import { authRouter } from './routes/auth';
 import { transactionsRouter } from './routes/transactions';
 import { adminRouter } from './routes/admin';
+import { getAboutContent } from './services/config';
 import { FirestoreSessionStore } from './services/sessionStore';
 
 const repoRoot = path.resolve(__dirname, '../..');
@@ -77,6 +78,16 @@ app.use('/api/photos', photosRouter);
 app.use('/api/folders', foldersRouter);
 app.use('/api/transactions', transactionsRouter);
 app.use('/api/admin', adminRouter);
+
+app.get('/api/about', async (_req, res) => {
+  try {
+    const content = await getAboutContent();
+    res.json({ content });
+  } catch (err) {
+    console.error('Failed to get about content:', err);
+    res.status(500).json({ error: 'Failed to get about content' });
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

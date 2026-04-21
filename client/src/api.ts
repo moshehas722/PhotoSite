@@ -38,3 +38,83 @@ export async function rejectTransaction(id: string, note?: string): Promise<void
   });
   if (!res.ok) throw new Error(`Reject failed: ${res.statusText}`);
 }
+
+export interface AdminSettings {
+  driveFolderId: string;
+  serviceAccountEmail: string;
+}
+
+export async function fetchAdminSettings(): Promise<AdminSettings> {
+  const res = await fetch('/api/admin/settings', { credentials: 'include' });
+  if (!res.ok) throw new Error(`Failed to fetch settings: ${res.statusText}`);
+  return res.json();
+}
+
+export async function fetchAboutContent(): Promise<string> {
+  const res = await fetch('/api/about');
+  if (!res.ok) return '';
+  const data = (await res.json()) as { content: string };
+  return data.content;
+}
+
+export async function saveAboutContent(content: string): Promise<void> {
+  const res = await fetch('/api/admin/about', {
+    method: 'PUT',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ content }),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({})) as { error?: string };
+    throw new Error(body.error ?? `Failed to save: ${res.statusText}`);
+  }
+}
+
+export async function saveAdminSettings(driveFolderId: string): Promise<void> {
+  const res = await fetch('/api/admin/settings', {
+    method: 'PUT',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ driveFolderId }),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({})) as { error?: string };
+    throw new Error(body.error ?? `Failed to save settings: ${res.statusText}`);
+  }
+}
+
+export interface AdminEntry {
+  email: string;
+  source: 'env' | 'firestore';
+}
+
+export async function fetchAdmins(): Promise<AdminEntry[]> {
+  const res = await fetch('/api/admin/administrators', { credentials: 'include' });
+  if (!res.ok) throw new Error(`Failed to fetch administrators: ${res.statusText}`);
+  const data = (await res.json()) as { admins: AdminEntry[] };
+  return data.admins;
+}
+
+export async function addAdmin(email: string): Promise<void> {
+  const res = await fetch('/api/admin/administrators', {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email }),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({})) as { error?: string };
+    throw new Error(body.error ?? `Failed to add administrator: ${res.statusText}`);
+  }
+}
+
+export async function removeAdmin(email: string): Promise<void> {
+  const res = await fetch(`/api/admin/administrators/${encodeURIComponent(email)}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({})) as { error?: string };
+    throw new Error(body.error ?? `Failed to remove administrator: ${res.statusText}`);
+  }
+}

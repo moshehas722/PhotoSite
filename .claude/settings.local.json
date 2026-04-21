@@ -49,7 +49,9 @@
       "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\('email:', d.get\\('client_email'\\)\\); print\\('project:', d.get\\('project_id'\\)\\); print\\('type:', d.get\\('type'\\)\\)\")",
       "PowerShell($logs = Get-Content 'C:\\\\Users\\\\Moshe\\\\.claude\\\\projects\\\\C--Dev-repo-PhotoSite\\\\f7c1a1a2-3558-41d3-8206-7f8ff70b9084\\\\tool-results\\\\mcp-Claude_Preview-preview_logs-1776768570259.txt' | ConvertFrom-Json; $logs | Select-Object -Last 30 | ForEach-Object { $_.text })",
       "Bash(powershell -Command \"Get-Content 'C:\\\\Dev\\\\repo\\\\PhotoSite\\\\maiphotos-d46ea447b7bc.json' | ConvertFrom-Json | Select-Object type, project_id, client_email, private_key_id\")",
-      "Bash(powershell -Command \"Get-Content 'C:\\\\Dev\\\\repo\\\\PhotoSite\\\\secrets\\\\maiphotos-b4f1b2aaa16a.json' | ConvertFrom-Json | Select-Object type, client_email, project_id\")"
+      "Bash(powershell -Command \"Get-Content 'C:\\\\Dev\\\\repo\\\\PhotoSite\\\\secrets\\\\maiphotos-b4f1b2aaa16a.json' | ConvertFrom-Json | Select-Object type, client_email, project_id\")",
+      "Bash(powershell -Command \"Get-Content 'C:\\\\Dev\\\\repo\\\\PhotoSite\\\\secrets\\\\maiphotos-a50a7e971145.json' | ConvertFrom-Json | Select-Object type, client_email, project_id\")",
+      "Bash(node -e \"const f=require\\('fs'\\); const k=JSON.parse\\(f.readFileSync\\('C:/Dev/repo/PhotoSite/secrets/maiphotos-a50a7e971145.json','utf8'\\)\\); console.log\\('client_email:', k.client_email\\);\")"
     ]
   }
 }

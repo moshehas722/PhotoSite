@@ -44,6 +44,7 @@ function App() {
                   <div className="app-header__right">
                     <Link to="/about" className="app-header__link app-header__link--desktop">About</Link>
                     <HeaderCart />
+                    <Link to="/" className="app-header__icon-btn" aria-label="Home">🏠</Link>
                     <UserMenu />
                   </div>
                 </header>

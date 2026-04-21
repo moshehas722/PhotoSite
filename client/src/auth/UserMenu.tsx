@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from './AuthContext';
+import { useTheme } from '../theme/ThemeContext';
 import './UserMenu.css';
 
 export function UserMenu() {
   const { user, loading, login, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const [open, setOpen] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
 
@@ -39,6 +41,15 @@ export function UserMenu() {
                   <span className="user-menu__item-icon">⚙️</span> Admin
                 </Link>
               )}
+              <div className="user-menu__theme">
+                <span className="user-menu__theme-label">
+                  {theme === 'dark' ? '🌙 Dark' : '☀️ Light'}
+                </span>
+                <label className="user-menu__toggle">
+                  <input type="checkbox" checked={theme === 'light'} onChange={toggleTheme} />
+                  <span className="user-menu__toggle-track" />
+                </label>
+              </div>
               <button className="user-menu__item user-menu__item--signout" onClick={() => void logout()}>
                 Sign out
               </button>

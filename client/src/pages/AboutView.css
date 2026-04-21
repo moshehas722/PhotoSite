@@ -6,7 +6,7 @@
   font-size: 1.5rem;
   font-weight: 500;
   margin-bottom: 28px;
-  color: #eee;
+  color: var(--text);
 }
 
 .about-view__section {
@@ -16,14 +16,14 @@
 .about-view__section h2 {
   font-size: 1rem;
   font-weight: 600;
-  color: #aaa;
+  color: var(--text-label);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   margin-bottom: 10px;
 }
 
 .about-view__section p {
-  color: #ccc;
+  color: var(--text-3);
   font-size: 0.95rem;
   line-height: 1.65;
 }
@@ -38,7 +38,7 @@
 }
 
 .about-view__list li {
-  color: #ccc;
+  color: var(--text-3);
   font-size: 0.95rem;
   line-height: 1.5;
   padding-left: 16px;
@@ -49,7 +49,7 @@
   content: '–';
   position: absolute;
   left: 0;
-  color: #555;
+  color: var(--text-dim);
 }
 
 .about-view__link {
@@ -59,4 +59,40 @@
 
 .about-view__link:hover {
   text-decoration: underline;
+}
+
+.about-view__contact {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.about-view__contact-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-3);
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: color 0.15s;
+}
+
+.about-view__contact-link:hover {
+  color: var(--text);
+}
+
+.about-view__contact-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: var(--bg-btn);
+  flex-shrink: 0;
+}
+
+.about-view__contact-icon svg {
+  width: 18px;
+  height: 18px;
 }

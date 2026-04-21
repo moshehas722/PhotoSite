@@ -12,12 +12,12 @@
   bottom: 0;
   width: 380px;
   max-width: 90vw;
-  background: #1a1a1a;
-  border-left: 1px solid #2a2a2a;
+  background: var(--bg-surface);
+  border-left: 1px solid var(--border);
   z-index: 201;
   display: flex;
   flex-direction: column;
-  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.4);
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.3);
 }
 
 .cart-drawer__header {
@@ -25,7 +25,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 20px 24px;
-  border-bottom: 1px solid #2a2a2a;
+  border-bottom: 1px solid var(--border);
 }
 
 .cart-drawer__header h2 {
@@ -37,7 +37,7 @@
 .cart-drawer__close {
   background: transparent;
   border: none;
-  color: #aaa;
+  color: var(--text-label);
   font-size: 1.8rem;
   cursor: pointer;
   line-height: 1;
@@ -45,12 +45,12 @@
 }
 
 .cart-drawer__close:hover {
-  color: #fff;
+  color: var(--text);
 }
 
 .cart-drawer__empty {
   padding: 40px 24px;
-  color: #888;
+  color: var(--text-muted);
   text-align: center;
 }
 
@@ -71,7 +71,7 @@
 }
 
 .cart-drawer__item:hover {
-  background: #222;
+  background: var(--bg-hover);
 }
 
 .cart-drawer__item img {
@@ -85,7 +85,7 @@
 .cart-drawer__item-name {
   flex: 1;
   font-size: 0.9rem;
-  color: #ddd;
+  color: var(--text-2);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -94,7 +94,7 @@
 .cart-drawer__remove {
   background: transparent;
   border: none;
-  color: #888;
+  color: var(--text-muted);
   font-size: 1.4rem;
   cursor: pointer;
   width: 28px;
@@ -110,14 +110,14 @@
 
 .cart-drawer__footer {
   padding: 16px 24px 20px;
-  border-top: 1px solid #2a2a2a;
+  border-top: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
 .cart-drawer__count {
-  color: #888;
+  color: var(--text-muted);
   font-size: 0.85rem;
 }
 
@@ -160,14 +160,14 @@
 }
 
 .cart-drawer__accepted p {
-  color: #eee;
+  color: var(--text);
   font-size: 1.1rem;
   margin: 0;
   text-align: center;
 }
 
 .cart-drawer__accepted-sub {
-  color: #999 !important;
+  color: var(--text-muted) !important;
   font-size: 0.85rem !important;
   max-width: 280px;
 }

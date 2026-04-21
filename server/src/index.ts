@@ -10,7 +10,7 @@ import { foldersRouter } from './routes/folders';
 import { authRouter } from './routes/auth';
 import { transactionsRouter } from './routes/transactions';
 import { adminRouter } from './routes/admin';
-import { getAboutContent } from './services/config';
+import { getAboutContent, getProfile } from './services/config';
 import { FirestoreSessionStore } from './services/sessionStore';
 
 const repoRoot = path.resolve(__dirname, '../..');
@@ -78,6 +78,15 @@ app.use('/api/photos', photosRouter);
 app.use('/api/folders', foldersRouter);
 app.use('/api/transactions', transactionsRouter);
 app.use('/api/admin', adminRouter);
+
+app.get('/api/profile', async (_req, res) => {
+  try {
+    res.json(await getProfile());
+  } catch (err) {
+    console.error('Failed to get profile:', err);
+    res.status(500).json({ error: 'Failed to get profile' });
+  }
+});
 
 app.get('/api/about', async (_req, res) => {
   try {

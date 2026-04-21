@@ -2,11 +2,11 @@
   font-size: 1.5rem;
   font-weight: 500;
   margin-bottom: 20px;
-  color: #eee;
+  color: var(--text);
 }
 
 .purchases-view__empty {
-  color: #888;
+  color: var(--text-muted);
   font-size: 1rem;
 }
 
@@ -27,7 +27,7 @@
 }
 
 .purchases-view__card {
-  background: #1a1a1a;
+  background: var(--bg-surface);
   border-radius: 8px;
   overflow: hidden;
   display: flex;

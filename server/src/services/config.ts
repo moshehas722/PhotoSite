@@ -57,3 +57,25 @@ export async function removeAdminEmail(email: string): Promise<void> {
     { merge: true }
   );
 }
+
+export interface SiteProfile {
+  phone: string;
+  instagram: string;
+  facebook: string;
+}
+
+export async function getProfile(): Promise<SiteProfile> {
+  try {
+    const doc = await firestore.doc(CONFIG_DOC).get();
+    const d = doc.data() ?? {};
+    return {
+      phone: (d.phone as string | undefined) ?? '',
+      instagram: (d.instagram as string | undefined) ?? '',
+      facebook: (d.facebook as string | undefined) ?? '',
+    };
+  } catch { return { phone: '', instagram: '', facebook: '' }; }
+}
+
+export async function setProfile(profile: Partial<SiteProfile>): Promise<void> {
+  await firestore.doc(CONFIG_DOC).set(profile, { merge: true });
+}

@@ -10,6 +10,7 @@ import {
 import {
   getDriveFolderId, setDriveFolderId, getAboutContent, setAboutContent,
   getAdminEmailList, addAdminEmail, removeAdminEmail,
+  getProfile, setProfile,
 } from '../services/config';
 
 export const adminRouter = Router();
@@ -134,6 +135,32 @@ adminRouter.delete('/administrators/:email', async (req: Request, res: Response)
   } catch (err) {
     console.error('Failed to remove administrator:', err);
     res.status(500).json({ error: 'Failed to remove administrator' });
+  }
+});
+
+adminRouter.get('/profile', async (_req: Request, res: Response) => {
+  try {
+    res.json(await getProfile());
+  } catch (err) {
+    console.error('Failed to get profile:', err);
+    res.status(500).json({ error: 'Failed to get profile' });
+  }
+});
+
+adminRouter.put('/profile', async (req: Request, res: Response) => {
+  try {
+    const { phone, instagram, facebook } = (req.body ?? {}) as {
+      phone?: string; instagram?: string; facebook?: string;
+    };
+    await setProfile({
+      phone: (phone ?? '').trim(),
+      instagram: (instagram ?? '').trim(),
+      facebook: (facebook ?? '').trim(),
+    });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Failed to save profile:', err);
+    res.status(500).json({ error: 'Failed to save profile' });
   }
 });
 

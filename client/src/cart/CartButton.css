@@ -3,9 +3,9 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #222;
-  color: #eee;
-  border: 1px solid #2a2a2a;
+  background: var(--bg-hover);
+  color: var(--text);
+  border: 1px solid var(--border);
   padding: 8px 10px;
   border-radius: 6px;
   cursor: pointer;
@@ -14,7 +14,7 @@
 }
 
 .cart-button:hover {
-  background: #2a2a2a;
+  background: var(--bg-btn);
 }
 
 .cart-button__icon {

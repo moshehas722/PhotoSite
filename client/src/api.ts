@@ -50,6 +50,12 @@ export async function fetchAdminSettings(): Promise<AdminSettings> {
   return res.json();
 }
 
+export async function fetchPublicProfile(): Promise<SiteProfile> {
+  const res = await fetch('/api/profile');
+  if (!res.ok) return { phone: '', instagram: '', facebook: '' };
+  return res.json();
+}
+
 export async function fetchAboutContent(): Promise<string> {
   const res = await fetch('/api/about');
   if (!res.ok) return '';
@@ -80,6 +86,31 @@ export async function saveAdminSettings(driveFolderId: string): Promise<void> {
   if (!res.ok) {
     const body = await res.json().catch(() => ({})) as { error?: string };
     throw new Error(body.error ?? `Failed to save settings: ${res.statusText}`);
+  }
+}
+
+export interface SiteProfile {
+  phone: string;
+  instagram: string;
+  facebook: string;
+}
+
+export async function fetchProfile(): Promise<SiteProfile> {
+  const res = await fetch('/api/admin/profile', { credentials: 'include' });
+  if (!res.ok) throw new Error(`Failed to fetch profile: ${res.statusText}`);
+  return res.json();
+}
+
+export async function saveProfile(profile: SiteProfile): Promise<void> {
+  const res = await fetch('/api/admin/profile', {
+    method: 'PUT',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(profile),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({})) as { error?: string };
+    throw new Error(body.error ?? `Failed to save profile: ${res.statusText}`);
   }
 }
 

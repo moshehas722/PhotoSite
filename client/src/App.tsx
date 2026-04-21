@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import { ThemeProvider } from './theme/ThemeContext';
 import './App.css';
 import { Sidebar } from './components/Sidebar';
 import { FolderView } from './components/FolderView';
@@ -34,13 +35,14 @@ function HeaderCart() {
 function App() {
   return (
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+      <ThemeProvider>
       <AuthProvider>
         <TransactionsProvider>
           <CartProvider>
             <BrowserRouter>
               <div className="app">
                 <header className="app-header">
-                  <Link to="/" className="app-header__title"><h1>Photo Album</h1></Link>
+                  <Link to="/" className="app-header__title" aria-label="Home" />
                   <div className="app-header__right">
                     <Link to="/about" className="app-header__link app-header__link--desktop">About</Link>
                     <HeaderCart />
@@ -65,6 +67,7 @@ function App() {
           </CartProvider>
         </TransactionsProvider>
       </AuthProvider>
+      </ThemeProvider>
     </GoogleOAuthProvider>
   );
 }

@@ -9,10 +9,13 @@ import {
   saveAdminSettings,
   fetchAboutContent,
   saveAboutContent,
+  fetchProfile,
+  saveProfile,
   fetchAdmins,
   addAdmin,
   removeAdmin,
   type AdminSettings,
+  type SiteProfile,
   type AdminEntry,
 } from '../api';
 import type { Transaction } from '../transactions/TransactionsContext';
@@ -26,59 +29,6 @@ function extractFolderId(input: string): string {
   return trimmed;
 }
 
-function AboutEditor() {
-  const [text, setText] = useState('');
-  const [saving, setSaving] = useState(false);
-  const [msg, setMsg] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetchAboutContent().then(c => setText(c));
-  }, []);
-
-  const handleSave = async () => {
-    setSaving(true);
-    setMsg(null);
-    try {
-      await saveAboutContent(text);
-      setMsg('Saved.');
-    } catch (err) {
-      setMsg(err instanceof Error ? err.message : 'Save failed.');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  return (
-    <div className="admin-settings__field">
-      <label className="admin-settings__label">About Page</label>
-      <textarea
-        className="admin-settings__textarea"
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        rows={12}
-        placeholder="Write the about page content here…"
-        spellCheck
-      />
-      <p className="admin-settings__hint">
-        Separate sections with a blank line. The first line of each section becomes a heading.
-      </p>
-      <div className="admin-settings__row">
-        <button
-          className="admin-view__btn admin-view__btn--primary"
-          onClick={() => void handleSave()}
-          disabled={saving}
-        >
-          {saving ? 'Saving…' : 'Save'}
-        </button>
-        {msg && (
-          <span className={`admin-settings__msg ${msg === 'Saved.' ? 'admin-settings__msg--ok' : 'admin-settings__msg--err'}`}>
-            {msg}
-          </span>
-        )}
-      </div>
-    </div>
-  );
-}
 
 function SettingsPanel() {
   const [settings, setSettings] = useState<AdminSettings | null>(null);
@@ -138,25 +88,120 @@ function SettingsPanel() {
         )}
       </div>
 
-      {settings?.serviceAccountEmail && (
-        <div className="admin-settings__field">
-          <label className="admin-settings__label">Service Account</label>
-          <code className="admin-settings__code">{settings.serviceAccountEmail}</code>
-          <p className="admin-settings__hint">
-            The site reads photos using this service account. You must share each Drive folder with it as <strong>Viewer</strong>.
-          </p>
-          <ol className="admin-settings__steps">
-            <li>Open <a href="https://drive.google.com" target="_blank" rel="noreferrer">Google Drive</a> and navigate to your photos folder.</li>
-            <li>Right-click the folder → <strong>Share</strong>.</li>
-            <li>In the "Add people and groups" box, paste the email above.</li>
-            <li>Set the role to <strong>Viewer</strong>.</li>
-            <li>Uncheck "Notify people" (the service account has no inbox), then click <strong>Share</strong>.</li>
-            <li>Repeat for any sub-folders that aren't already inherited.</li>
-          </ol>
-        </div>
-      )}
+      <div className="admin-settings__field">
+        <label className="admin-settings__label">Service Account</label>
+        {settings?.serviceAccountEmail
+          ? <code className="admin-settings__code">{settings.serviceAccountEmail}</code>
+          : <span className="admin-settings__current">Not configured</span>
+        }
+        <p className="admin-settings__hint">
+          The site reads photos using this service account. You must share each Drive folder with it as <strong>Viewer</strong>.
+        </p>
+        <ol className="admin-settings__steps">
+          <li>Open <a href="https://drive.google.com" target="_blank" rel="noreferrer">Google Drive</a> and navigate to your photos folder.</li>
+          <li>Right-click the folder → <strong>Share</strong>.</li>
+          <li>In the "Add people and groups" box, paste the email above.</li>
+          <li>Set the role to <strong>Viewer</strong>.</li>
+          <li>Uncheck "Notify people" (the service account has no inbox), then click <strong>Share</strong>.</li>
+          <li>Repeat for any sub-folders that aren't already inherited.</li>
+        </ol>
+      </div>
 
-      <AboutEditor />
+    </section>
+  );
+}
+
+function ProfilePanel() {
+  const [profile, setProfile_] = useState<SiteProfile>({ phone: '', instagram: '', facebook: '' });
+  const [aboutText, setAboutText] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchProfile().then(setProfile_).catch(() => {});
+    fetchAboutContent().then(setAboutText).catch(() => {});
+  }, []);
+
+  const handleChange = (field: keyof SiteProfile) => (e: React.ChangeEvent<HTMLInputElement>) =>
+    setProfile_((prev) => ({ ...prev, [field]: e.target.value }));
+
+  const handleSave = async () => {
+    setSaving(true);
+    setMsg(null);
+    try {
+      await Promise.all([saveProfile(profile), saveAboutContent(aboutText)]);
+      setMsg('Saved.');
+    } catch (err) {
+      setMsg(err instanceof Error ? err.message : 'Save failed.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <section className="admin-settings">
+      <div className="admin-settings__field">
+        <label className="admin-settings__label">Phone Number</label>
+        <input
+          className="admin-settings__input"
+          type="tel"
+          placeholder="+1 555 000 0000"
+          value={profile.phone}
+          onChange={handleChange('phone')}
+        />
+      </div>
+
+      <div className="admin-settings__field">
+        <label className="admin-settings__label">Instagram URL</label>
+        <input
+          className="admin-settings__input"
+          type="url"
+          placeholder="https://instagram.com/yourhandle"
+          value={profile.instagram}
+          onChange={handleChange('instagram')}
+        />
+      </div>
+
+      <div className="admin-settings__field">
+        <label className="admin-settings__label">Facebook URL</label>
+        <input
+          className="admin-settings__input"
+          type="url"
+          placeholder="https://facebook.com/yourpage"
+          value={profile.facebook}
+          onChange={handleChange('facebook')}
+        />
+      </div>
+
+      <div className="admin-settings__field">
+        <label className="admin-settings__label">About Page</label>
+        <textarea
+          className="admin-settings__textarea"
+          value={aboutText}
+          onChange={(e) => setAboutText(e.target.value)}
+          rows={12}
+          placeholder="Write the about page content here…"
+          spellCheck
+        />
+        <p className="admin-settings__hint">
+          Separate sections with a blank line. The first line of each section becomes a heading.
+        </p>
+      </div>
+
+      <div className="admin-settings__row">
+        <button
+          className="admin-view__btn admin-view__btn--primary"
+          onClick={() => void handleSave()}
+          disabled={saving}
+        >
+          {saving ? 'Saving…' : 'Save'}
+        </button>
+        {msg && (
+          <span className={`admin-settings__msg ${msg === 'Saved.' ? 'admin-settings__msg--ok' : 'admin-settings__msg--err'}`}>
+            {msg}
+          </span>
+        )}
+      </div>
     </section>
   );
 }
@@ -430,7 +475,7 @@ function AdministratorsPanel() {
   );
 }
 
-type Tab = 'transactions' | 'settings' | 'administrators';
+type Tab = 'transactions' | 'gdrive' | 'profile' | 'administrators';
 
 export function AdminView() {
   const { user, loading } = useAuth();
@@ -449,10 +494,16 @@ export function AdminView() {
           Pending Transactions
         </button>
         <button
-          className={`admin-tabs__tab ${tab === 'settings' ? 'admin-tabs__tab--active' : ''}`}
-          onClick={() => setTab('settings')}
+          className={`admin-tabs__tab ${tab === 'gdrive' ? 'admin-tabs__tab--active' : ''}`}
+          onClick={() => setTab('gdrive')}
         >
-          Settings
+          GDrive Folder
+        </button>
+        <button
+          className={`admin-tabs__tab ${tab === 'profile' ? 'admin-tabs__tab--active' : ''}`}
+          onClick={() => setTab('profile')}
+        >
+          Profile
         </button>
         <button
           className={`admin-tabs__tab ${tab === 'administrators' ? 'admin-tabs__tab--active' : ''}`}
@@ -463,7 +514,8 @@ export function AdminView() {
       </div>
 
       {tab === 'transactions' && <TransactionsPanel />}
-      {tab === 'settings' && <SettingsPanel />}
+      {tab === 'gdrive' && <SettingsPanel />}
+      {tab === 'profile' && <ProfilePanel />}
       {tab === 'administrators' && <AdministratorsPanel />}
     </div>
   );

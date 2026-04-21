@@ -8,7 +8,8 @@ import { Firestore } from '@google-cloud/firestore';
 import { photosRouter } from './routes/photos';
 import { foldersRouter } from './routes/folders';
 import { authRouter } from './routes/auth';
-import { purchasesRouter } from './routes/purchases';
+import { transactionsRouter } from './routes/transactions';
+import { adminRouter } from './routes/admin';
 import { FirestoreSessionStore } from './services/sessionStore';
 
 const repoRoot = path.resolve(__dirname, '../..');
@@ -74,7 +75,8 @@ app.use(
 app.use('/api/auth', authRouter);
 app.use('/api/photos', photosRouter);
 app.use('/api/folders', foldersRouter);
-app.use('/api/purchases', purchasesRouter);
+app.use('/api/transactions', transactionsRouter);
+app.use('/api/admin', adminRouter);
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

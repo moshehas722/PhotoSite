@@ -1,7 +1,7 @@
 import type { Photo } from '../types';
 import { useCart } from '../cart/CartContext';
 import { useAuth } from '../auth/AuthContext';
-import { usePurchases } from '../purchases/PurchasesContext';
+import { useTransactions } from '../transactions/TransactionsContext';
 import './PhotoCard.css';
 
 interface Props {
@@ -12,9 +12,10 @@ interface Props {
 export function PhotoCard({ photo, onClick }: Props) {
   const { add, remove, has } = useCart();
   const { user } = useAuth();
-  const { purchasedIds } = usePurchases();
+  const { approvedIds, pendingIds } = useTransactions();
   const inCart = has(photo.id);
-  const purchased = purchasedIds.has(photo.id);
+  const purchased = approvedIds.has(photo.id);
+  const pending = !purchased && pendingIds.has(photo.id);
 
   const toggleCart = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -29,7 +30,7 @@ export function PhotoCard({ photo, onClick }: Props) {
         alt={photo.name}
         loading="lazy"
       />
-      {user && !purchased && (
+      {user && !purchased && !pending && (
         <button
           className={`photo-card__cart ${inCart ? 'photo-card__cart--in' : ''}`}
           onClick={toggleCart}
@@ -41,6 +42,9 @@ export function PhotoCard({ photo, onClick }: Props) {
       )}
       {user && purchased && (
         <span className="photo-card__purchased" title="Purchased">✓ Purchased</span>
+      )}
+      {user && pending && (
+        <span className="photo-card__pending" title="Awaiting admin approval">⏳ Pending approval</span>
       )}
       <div className="photo-card__overlay">
         <span className="photo-card__name">{photo.name}</span>

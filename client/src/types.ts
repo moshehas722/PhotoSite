@@ -9,6 +9,12 @@ export interface Folder {
   name: string;
 }
 
+export interface RecentFolder {
+  id: string;
+  name: string;
+  createdTime: string;
+}
+
 export interface FolderContents {
   id: string;
   name: string;

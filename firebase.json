@@ -1,4 +1,7 @@
 {
+  "firestore": {
+    "indexes": "firestore.indexes.json"
+  },
   "hosting": {
     "public": "client/dist",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
@@ -6,7 +9,7 @@
       {
         "source": "/api/**",
         "run": {
-          "serviceId": "photosite-server",
+          "serviceId": "maiphotos-server",
           "region": "us-central1"
         }
       },

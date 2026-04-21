@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { FolderTreeNode } from './FolderTreeNode';
+import { WhatsNew } from './WhatsNew';
 import './Sidebar.css';
 
 export function Sidebar() {
@@ -10,14 +11,16 @@ export function Sidebar() {
       <button
         className="sidebar__toggle"
         onClick={() => setOpen(!open)}
-        aria-label="Toggle folders"
+        aria-label="Toggle galleries"
       >
-        ☰ Folders
+        ☰ Galleries
       </button>
+      {open && <div className="sidebar__backdrop" onClick={() => setOpen(false)} />}
       <aside className={`sidebar ${open ? 'sidebar--open' : ''}`}>
-        <div className="sidebar__header">Folders</div>
+        <WhatsNew />
+        <div className="sidebar__header">Galleries</div>
         <div className="sidebar__tree">
-          <FolderTreeNode folderId="root" name="All Photos" depth={0} defaultExpanded />
+          <FolderTreeNode folderId="root" name="Home" depth={0} defaultExpanded />
         </div>
       </aside>
     </>

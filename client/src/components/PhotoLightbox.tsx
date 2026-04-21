@@ -1,7 +1,7 @@
 import Lightbox from 'yet-another-react-lightbox';
 import 'yet-another-react-lightbox/styles.css';
 import type { Photo } from '../types';
-import { usePurchases } from '../purchases/PurchasesContext';
+import { useTransactions } from '../transactions/TransactionsContext';
 
 interface Props {
   photos: Photo[];
@@ -11,14 +11,14 @@ interface Props {
 }
 
 export function PhotoLightbox({ photos, index, onClose, onNavigate }: Props) {
-  const { purchasedIds } = usePurchases();
+  const { approvedIds } = useTransactions();
 
   const slides = photos.map((p) => ({
     id: p.id,
-    src: purchasedIds.has(p.id)
+    src: approvedIds.has(p.id)
       ? `/api/photos/${p.id}/full`
       : `/api/photos/${p.id}/thumbnail`,
-    purchased: purchasedIds.has(p.id),
+    purchased: approvedIds.has(p.id),
   }));
 
   return (

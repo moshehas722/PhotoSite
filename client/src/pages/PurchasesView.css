@@ -10,6 +10,16 @@
   font-size: 1rem;
 }
 
+.purchases-view__pending {
+  background: #2a1f10;
+  border: 1px solid #d4881e;
+  color: #f0c075;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  margin-bottom: 16px;
+}
+
 .purchases-view__grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -43,4 +53,10 @@
 
 .purchases-view__download:hover {
   background: #1e55c9;
+}
+
+@media (max-width: 480px) {
+  .purchases-view__grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
 }

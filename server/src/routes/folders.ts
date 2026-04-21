@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { listFolderContents } from '../services/googleDrive';
+import { listFolderContents, listRecentFolders } from '../services/googleDrive';
 
 export const foldersRouter = Router();
 
@@ -11,6 +11,18 @@ const resolveFolderId = (paramId: string): string => {
   }
   return paramId;
 };
+
+foldersRouter.get('/recent', async (_req: Request, res: Response) => {
+  try {
+    const rootId = process.env.GOOGLE_DRIVE_FOLDER_ID;
+    if (!rootId) throw new Error('GOOGLE_DRIVE_FOLDER_ID is not set');
+    const folders = await listRecentFolders(rootId, 3);
+    res.json({ folders });
+  } catch (err) {
+    console.error('Failed to list recent folders:', err);
+    res.status(500).json({ error: 'Failed to list recent folders' });
+  }
+});
 
 foldersRouter.get('/:id', async (req: Request, res: Response) => {
   try {

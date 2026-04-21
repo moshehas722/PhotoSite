@@ -91,6 +91,16 @@
   font-size: 1.3rem;
 }
 
+@media (hover: none) {
+  .photo-card__cart {
+    opacity: 1;
+  }
+
+  .photo-card__overlay {
+    opacity: 1;
+  }
+}
+
 .photo-card__purchased {
   position: absolute;
   top: 8px;
@@ -98,6 +108,19 @@
   padding: 4px 8px;
   border-radius: 12px;
   background: #2ecc71;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.photo-card__pending {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  background: #d4881e;
   color: #fff;
   font-size: 0.7rem;
   font-weight: 600;

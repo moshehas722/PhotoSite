@@ -14,6 +14,12 @@ export interface DriveFolder {
   name: string;
 }
 
+export interface RecentFolder {
+  id: string;
+  name: string;
+  createdTime: string;
+}
+
 export interface FolderContents {
   id: string;
   name: string;
@@ -112,6 +118,42 @@ export async function listFolderContents(folderId: string): Promise<FolderConten
   } while (pageToken);
 
   return { id: folderId, name: folderName, photos, folders };
+}
+
+export async function listRecentFolders(rootId: string, limit: number): Promise<RecentFolder[]> {
+  const auth = getAuthClient();
+  const drive = google.drive({ version: 'v3', auth });
+
+  const all: RecentFolder[] = [];
+  const queue: string[] = [rootId];
+
+  while (queue.length > 0) {
+    const batch = queue.splice(0, queue.length);
+    await Promise.all(
+      batch.map(async (parentId) => {
+        let pageToken: string | undefined;
+        do {
+          const res = await drive.files.list({
+            q: `'${parentId}' in parents and mimeType = '${FOLDER_MIME}' and trashed = false`,
+            fields: 'nextPageToken, files(id, name, createdTime)',
+            pageSize: 100,
+            pageToken,
+          });
+          for (const f of res.data.files ?? []) {
+            if (f.id && f.name && f.createdTime) {
+              all.push({ id: f.id, name: f.name, createdTime: f.createdTime });
+              queue.push(f.id);
+            }
+          }
+          pageToken = res.data.nextPageToken ?? undefined;
+        } while (pageToken);
+      })
+    );
+  }
+
+  return all
+    .sort((a, b) => new Date(b.createdTime).getTime() - new Date(a.createdTime).getTime())
+    .slice(0, limit);
 }
 
 export async function getPhotoStream(fileId: string) {

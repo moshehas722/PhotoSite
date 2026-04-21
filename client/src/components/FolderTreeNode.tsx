@@ -63,7 +63,7 @@ export function FolderTreeNode({ folderId, name, depth, defaultExpanded = false 
           {hasNoChildren ? '·' : expanded ? '▾' : '▸'}
         </button>
         <Link to={linkTo} className="tree-node__link">
-          <span className="tree-node__icon">📁</span>
+          <span className="tree-node__icon">{folderId === 'root' ? '🏠' : '🖼️'}</span>
           <span className="tree-node__name">{name}</span>
         </Link>
       </div>

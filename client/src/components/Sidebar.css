@@ -26,11 +26,18 @@
   background: #222;
   color: #eee;
   border: 1px solid #2a2a2a;
-  padding: 8px 12px;
+  padding: 9px 14px;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   margin-bottom: 16px;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.sidebar__backdrop {
+  display: none;
 }
 
 .tree-node {
@@ -107,9 +114,45 @@
   padding: 4px 8px;
 }
 
+.whats-new {
+  margin-bottom: 8px;
+}
+
+.whats-new__item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 16px;
+  color: #ddd;
+  text-decoration: none;
+  font-size: 0.9rem;
+  border-radius: 4px;
+  margin: 1px 4px;
+  transition: background 0.15s ease;
+}
+
+.whats-new__item:hover {
+  background: #222;
+}
+
+.whats-new__name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 @media (max-width: 768px) {
   .sidebar__toggle {
-    display: inline-block;
+    display: inline-flex;
+    margin: 12px 16px 0;
+  }
+
+  .sidebar__backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 99;
   }
 
   .sidebar {

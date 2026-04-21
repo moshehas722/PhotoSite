@@ -29,9 +29,21 @@
   cursor: pointer;
   font-size: 0.85rem;
   transition: background 0.15s ease, color 0.15s ease;
+  white-space: nowrap;
 }
 
 .user-menu__logout:hover {
   background: #222;
   color: #eee;
+}
+
+@media (max-width: 600px) {
+  .user-menu__name {
+    display: none;
+  }
+
+  .user-menu__logout {
+    padding: 6px 8px;
+    font-size: 0.8rem;
+  }
 }

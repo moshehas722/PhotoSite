@@ -32,7 +32,17 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5173/)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3001/api/folders/root)",
       "Bash(netstat -ano)",
-      "Bash(node -e ' *)"
+      "Bash(node -e ' *)",
+      "Bash(gcloud secrets *)",
+      "Bash(curl -s https://maiphotos-server-190235306936.us-central1.run.app/api/folders/root)",
+      "Bash(MSYS_NO_PATHCONV=1 gcloud run services update maiphotos-server --region us-central1 --project maiphotos --update-env-vars=\"GOOGLE_SERVICE_ACCOUNT_KEY_PATH=/secrets/sa-key,GOOGLE_APPLICATION_CREDENTIALS=/secrets/sa-key\")",
+      "Bash(curl -s https://maiphotos-server-190235306936.us-central1.run.app/api/auth/me)",
+      "Bash(curl -s https://maiphotos-server-gb6cblhgma-uc.a.run.app/api/auth/me)",
+      "Bash(curl -s https://maiphotos-server-gb6cblhgma-uc.a.run.app/api/folders/root)",
+      "Bash(gcloud logging *)",
+      "Bash(curl -s https://maiphotos-server-gb6cblhgma-uc.a.run.app/api/transactions/mine?status=pending)",
+      "Bash(curl -sI https://maiphotos-server-gb6cblhgma-uc.a.run.app/api/auth/me)",
+      "Bash(curl -sI https://maiphotos.web.app)"
     ]
   }
 }

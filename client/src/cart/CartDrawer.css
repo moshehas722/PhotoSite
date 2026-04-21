@@ -163,4 +163,23 @@
   color: #eee;
   font-size: 1.1rem;
   margin: 0;
+  text-align: center;
+}
+
+.cart-drawer__accepted-sub {
+  color: #999 !important;
+  font-size: 0.85rem !important;
+  max-width: 280px;
+}
+
+.cart-drawer__error {
+  color: #e74c3c;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 480px) {
+  .cart-drawer {
+    width: 100%;
+    max-width: 100%;
+  }
 }

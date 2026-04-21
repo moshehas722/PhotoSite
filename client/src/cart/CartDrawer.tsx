@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useCart } from './CartContext';
-import { usePurchases } from '../purchases/PurchasesContext';
+import { useTransactions } from '../transactions/TransactionsContext';
 import './CartDrawer.css';
 
 interface Props {
@@ -10,7 +10,7 @@ interface Props {
 
 export function CartDrawer({ open, onClose }: Props) {
   const { items, remove, clear } = useCart();
-  const { recordPurchase } = usePurchases();
+  const { submitTransaction } = useTransactions();
   const [accepted, setAccepted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -20,17 +20,17 @@ export function CartDrawer({ open, onClose }: Props) {
     setSubmitting(true);
     setError(null);
     try {
-      await recordPurchase(items.map((p) => p.id));
+      await submitTransaction(items.map((p) => p.id));
       setAccepted(true);
       clear();
       setTimeout(() => {
         setAccepted(false);
         setSubmitting(false);
         onClose();
-      }, 2000);
+      }, 2500);
     } catch (err) {
       console.error(err);
-      setError('Purchase failed. Please try again.');
+      setError('Submission failed. Please try again.');
       setSubmitting(false);
     }
   };
@@ -49,7 +49,10 @@ export function CartDrawer({ open, onClose }: Props) {
         {accepted ? (
           <div className="cart-drawer__accepted">
             <div className="cart-drawer__accepted-icon">✓</div>
-            <p>Purchase complete</p>
+            <p>Submitted for approval</p>
+            <p className="cart-drawer__accepted-sub">
+              You'll be able to download once an admin confirms payment.
+            </p>
           </div>
         ) : items.length === 0 ? (
           <div className="cart-drawer__empty">Your cart is empty.</div>
@@ -74,7 +77,7 @@ export function CartDrawer({ open, onClose }: Props) {
               <div className="cart-drawer__count">{items.length} photo{items.length === 1 ? '' : 's'}</div>
               {error && <div className="cart-drawer__error">{error}</div>}
               <button className="cart-drawer__checkout" onClick={handleCheckout} disabled={submitting}>
-                {submitting ? 'Processing...' : 'Accept Cart'}
+                {submitting ? 'Submitting...' : 'Submit Cart for Approval'}
               </button>
             </div>
           </>

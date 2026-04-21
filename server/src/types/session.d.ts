@@ -7,6 +7,7 @@ declare module 'express-session' {
       email: string;
       name: string;
       picture?: string;
+      isAdmin: boolean;
     };
   }
 }

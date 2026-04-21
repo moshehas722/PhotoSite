@@ -4,7 +4,7 @@ import {
   getThumbnailStream,
   getFileThumbnailLink,
 } from '../services/googleDrive';
-import { hasPurchased } from '../services/purchases';
+import { hasPurchased } from '../services/transactions';
 
 export const photosRouter = Router();
 

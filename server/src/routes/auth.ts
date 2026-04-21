@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { OAuth2Client } from 'google-auth-library';
+import { isAdminEmail } from '../services/admin';
 
 export const authRouter = Router();
 
@@ -44,6 +45,7 @@ authRouter.post('/google', async (req: Request, res: Response) => {
       email: payload.email,
       name: payload.name,
       picture: payload.picture,
+      isAdmin: isAdminEmail(payload.email),
     };
 
     res.json({ user: req.session.user });
@@ -60,6 +62,10 @@ authRouter.post('/google', async (req: Request, res: Response) => {
 });
 
 authRouter.get('/me', (req: Request, res: Response) => {
+  // Re-evaluate isAdmin from current env so admin toggles take effect without re-login.
+  if (req.session.user) {
+    req.session.user.isAdmin = isAdminEmail(req.session.user.email);
+  }
   res.json({ user: req.session.user ?? null });
 });
 

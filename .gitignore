@@ -1,6 +1,9 @@
 node_modules/
 dist/
 .env
+.env.production
 *.json.key
 service-account*.json
 secrets/
+.firebase/
+firebase-debug.log

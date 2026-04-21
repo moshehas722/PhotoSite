@@ -24,8 +24,12 @@ export interface FolderContents {
 const FOLDER_MIME = 'application/vnd.google-apps.folder';
 
 function getAuthClient() {
+  const scopes = ['https://www.googleapis.com/auth/drive.readonly'];
   const keyPath = process.env.GOOGLE_SERVICE_ACCOUNT_KEY_PATH;
-  if (!keyPath) throw new Error('GOOGLE_SERVICE_ACCOUNT_KEY_PATH is not set');
+
+  if (!keyPath) {
+    return new google.auth.GoogleAuth({ scopes });
+  }
 
   const resolvedPath = path.isAbsolute(keyPath)
     ? keyPath
@@ -34,10 +38,7 @@ function getAuthClient() {
     throw new Error(`Service account key file not found: ${resolvedPath}`);
   }
 
-  return new google.auth.GoogleAuth({
-    keyFile: resolvedPath,
-    scopes: ['https://www.googleapis.com/auth/drive.readonly'],
-  });
+  return new google.auth.GoogleAuth({ keyFile: resolvedPath, scopes });
 }
 
 export async function listPhotos(folderId: string): Promise<DrivePhoto[]> {

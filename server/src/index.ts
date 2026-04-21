@@ -3,16 +3,26 @@ import cors from 'cors';
 import session from 'express-session';
 import dotenv from 'dotenv';
 import path from 'path';
+import fs from 'fs';
 import { photosRouter } from './routes/photos';
 import { foldersRouter } from './routes/folders';
 import { authRouter } from './routes/auth';
 
-dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+const envPath = path.resolve(__dirname, '../../.env');
+if (fs.existsSync(envPath)) {
+  dotenv.config({ path: envPath });
+}
 
 const app = express();
 const PORT = process.env.PORT ?? 3001;
+const isProduction = process.env.NODE_ENV === 'production';
+const corsOrigin = process.env.CORS_ORIGIN ?? 'http://localhost:5173';
 
-app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
+if (isProduction) {
+  app.set('trust proxy', 1);
+}
+
+app.use(cors({ origin: corsOrigin, credentials: true }));
 app.use(express.json());
 app.use(
   session({
@@ -22,6 +32,7 @@ app.use(
     cookie: {
       httpOnly: true,
       sameSite: 'lax',
+      secure: isProduction,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     },
   })

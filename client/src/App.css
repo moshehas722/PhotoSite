@@ -103,18 +103,18 @@ body {
   align-items: center;
   justify-content: center;
   font-size: 1.05rem;
+  color: var(--text-3);
   background: var(--bg-hover);
   border: 1px solid var(--border);
   padding: 8px 10px;
   border-radius: 6px;
   text-decoration: none;
-  transition: background 0.15s;
-  filter: grayscale(1);
+  transition: background 0.15s, color 0.15s;
 }
 
 .app-header__icon-btn:hover {
   background: var(--bg-btn);
-  filter: grayscale(1);
+  color: var(--text);
 }
 
 .app-header h1 {

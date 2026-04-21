@@ -550,36 +550,6 @@
   cursor: pointer;
 }
 
-/* Light theme: near-black copy for readability (muted vars + thin Inter weights looked washed out) */
-html[data-theme="light"] .admin-users__intro {
-  color: #111;
-}
-
-html[data-theme="light"] .admin-users__filter,
-html[data-theme="light"] .admin-users__filter span {
-  color: #111;
-}
-
-html[data-theme="light"] .admin-users__email {
-  color: #111;
-}
-
-html[data-theme="light"] .admin-users__muted {
-  color: #111;
-}
-
-html[data-theme="light"] .admin-users__numeric {
-  color: #111;
-}
-
-html[data-theme="light"] .admin-users__table thead th {
-  color: #222;
-}
-
-html[data-theme="light"] .admin-view__empty {
-  color: #333;
-}
-
 @media (max-width: 600px) {
   .tx-row__main {
     grid-template-columns: auto 1fr;
@@ -614,7 +584,7 @@ html[data-theme="light"] .admin-view__empty {
     text-overflow: unset;
     line-height: 1.4;
     font-size: 0.82rem;
-    color: var(--text-3);
+    color: var(--text-dim);
   }
 
   .tx-row__meta-line {
@@ -654,10 +624,6 @@ html[data-theme="light"] .admin-view__empty {
     align-self: unset;
     flex-shrink: 0;
     margin-left: auto;
-  }
-
-  html[data-theme="light"] .tx-row__email {
-    color: #444;
   }
 
   /* Users tab: name + full access only */

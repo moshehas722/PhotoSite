@@ -1,3 +1,4 @@
+import { useCallback, useState } from 'react';
 import Lightbox from 'yet-another-react-lightbox';
 import Zoom from 'yet-another-react-lightbox/plugins/zoom';
 import 'yet-another-react-lightbox/styles.css';
@@ -7,6 +8,9 @@ import { useAuth } from '../auth/AuthContext';
 import { useTransactions } from '../transactions/TransactionsContext';
 import './PhotoCard.css';
 import './PhotoLightbox.css';
+
+/** Fallback until onLoad — Zoom plugin needs numeric width/height on image slides or maxZoom stays 1 (toolbar zoom disabled). */
+const PLACEHOLDER_DIM = { width: 3200, height: 2400 };
 
 interface Props {
   photos: Photo[];
@@ -20,17 +24,36 @@ export function PhotoLightbox({ photos, index, onClose, onNavigate }: Props) {
   const { add, remove, has } = useCart();
   const { approvedIds, pendingIds } = useTransactions();
   const fullAccess = user?.fullAccess === true;
+  const [naturalById, setNaturalById] = useState<
+    Record<string, { width: number; height: number }>
+  >({});
 
-  const slides = photos.map((p) => ({
-    ...p,
-    src:
-      fullAccess || approvedIds.has(p.id)
-        ? `/api/photos/${p.id}/full`
-        : `/api/photos/${p.id}/thumbnail`,
-    purchased: fullAccess || approvedIds.has(p.id),
-    pending:
-      !fullAccess && !approvedIds.has(p.id) && pendingIds.has(p.id),
-  }));
+  const onImgLoad = useCallback((photoId: string, el: HTMLImageElement) => {
+    const { naturalWidth: w, naturalHeight: h } = el;
+    if (w > 0 && h > 0) {
+      setNaturalById((prev) => {
+        const cur = prev[photoId];
+        if (cur?.width === w && cur?.height === h) return prev;
+        return { ...prev, [photoId]: { width: w, height: h } };
+      });
+    }
+  }, []);
+
+  const slides = photos.map((p) => {
+    const natural = naturalById[p.id];
+    return {
+      ...p,
+      width: natural?.width ?? PLACEHOLDER_DIM.width,
+      height: natural?.height ?? PLACEHOLDER_DIM.height,
+      src:
+        fullAccess || approvedIds.has(p.id)
+          ? `/api/photos/${p.id}/full`
+          : `/api/photos/${p.id}/thumbnail`,
+      purchased: fullAccess || approvedIds.has(p.id),
+      pending:
+        !fullAccess && !approvedIds.has(p.id) && pendingIds.has(p.id),
+    };
+  });
 
   const toggleCart = (e: React.MouseEvent, photo: Photo) => {
     e.stopPropagation();
@@ -57,6 +80,7 @@ export function PhotoLightbox({ photos, index, onClose, onNavigate }: Props) {
                 src={s.src}
                 alt=""
                 className="lightbox-slide__img"
+                onLoad={(e) => onImgLoad(s.id, e.currentTarget)}
               />
               {user && !s.purchased && !s.pending && (
                 <button

@@ -149,3 +149,19 @@ export async function removeAdmin(email: string): Promise<void> {
     throw new Error(body.error ?? `Failed to remove administrator: ${res.statusText}`);
   }
 }
+
+export interface AdminUserStats {
+  userSub: string;
+  email: string;
+  name: string;
+  picture?: string;
+  loginCount: number;
+  lastLoginAt: number | null;
+}
+
+export async function fetchAdminUsers(): Promise<AdminUserStats[]> {
+  const res = await fetch('/api/admin/users', { credentials: 'include' });
+  if (!res.ok) throw new Error(`Failed to fetch users: ${res.statusText}`);
+  const data = (await res.json()) as { users: AdminUserStats[] };
+  return data.users;
+}

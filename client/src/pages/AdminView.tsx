@@ -14,9 +14,11 @@ import {
   fetchAdmins,
   addAdmin,
   removeAdmin,
+  fetchAdminUsers,
   type AdminSettings,
   type SiteProfile,
   type AdminEntry,
+  type AdminUserStats,
 } from '../api';
 import type { Transaction } from '../transactions/TransactionsContext';
 import './AdminView.css';
@@ -362,6 +364,93 @@ function TransactionsPanel() {
   );
 }
 
+function formatLoginTime(ms: number | null): string {
+  if (ms === null || ms === undefined) return '—';
+  try {
+    return new Date(ms).toLocaleString();
+  } catch {
+    return '—';
+  }
+}
+
+function UsersPanel() {
+  const [users, setUsers] = useState<AdminUserStats[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    try {
+      setError(null);
+      setLoading(true);
+      setUsers(await fetchAdminUsers());
+    } catch {
+      setError('Failed to load users.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  return (
+    <section className="admin-users">
+      <p className="admin-users__intro">
+        Users who have signed in at least once, sorted by login count (highest first).
+      </p>
+      {error && <div className="admin-view__error">{error}</div>}
+      {loading ? (
+        <div className="admin-view__empty">Loading…</div>
+      ) : users.length === 0 ? (
+        <div className="admin-view__empty">No login records yet.</div>
+      ) : (
+        <div className="admin-users__table-wrap">
+          <table className="admin-users__table">
+            <thead>
+              <tr>
+                <th scope="col" className="admin-users__th admin-users__th--user">
+                  User
+                </th>
+                <th scope="col">Email</th>
+                <th scope="col" className="admin-users__th--numeric">
+                  Logins
+                </th>
+                <th scope="col">Last login</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.map((u) => (
+                <tr key={u.userSub}>
+                  <td>
+                    <div className="admin-users__cell-user">
+                      {u.picture ? (
+                        <img
+                          src={u.picture}
+                          alt=""
+                          className="admin-users__avatar"
+                          loading="lazy"
+                          referrerPolicy="no-referrer"
+                        />
+                      ) : (
+                        <span className="admin-users__avatar admin-users__avatar--placeholder" aria-hidden />
+                      )}
+                      <span className="admin-users__name">{u.name || '—'}</span>
+                    </div>
+                  </td>
+                  <td className="admin-users__email">{u.email || '—'}</td>
+                  <td className="admin-users__numeric">{u.loginCount}</td>
+                  <td className="admin-users__muted">{formatLoginTime(u.lastLoginAt)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </section>
+  );
+}
+
 function AdministratorsPanel() {
   const { user } = useAuth();
   const [admins, setAdmins] = useState<AdminEntry[]>([]);
@@ -475,7 +564,7 @@ function AdministratorsPanel() {
   );
 }
 
-type Tab = 'transactions' | 'gdrive' | 'profile' | 'administrators';
+type Tab = 'transactions' | 'gdrive' | 'profile' | 'users' | 'administrators';
 
 export function AdminView() {
   const { user, loading } = useAuth();
@@ -506,6 +595,12 @@ export function AdminView() {
           Profile
         </button>
         <button
+          className={`admin-tabs__tab ${tab === 'users' ? 'admin-tabs__tab--active' : ''}`}
+          onClick={() => setTab('users')}
+        >
+          Users
+        </button>
+        <button
           className={`admin-tabs__tab ${tab === 'administrators' ? 'admin-tabs__tab--active' : ''}`}
           onClick={() => setTab('administrators')}
         >
@@ -516,6 +611,7 @@ export function AdminView() {
       {tab === 'transactions' && <TransactionsPanel />}
       {tab === 'gdrive' && <SettingsPanel />}
       {tab === 'profile' && <ProfilePanel />}
+      {tab === 'users' && <UsersPanel />}
       {tab === 'administrators' && <AdministratorsPanel />}
     </div>
   );

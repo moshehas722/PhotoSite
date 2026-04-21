@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { OAuth2Client } from 'google-auth-library';
 import { isAdminEmail } from '../services/admin';
+import { recordLogin } from '../services/userLoginStats';
 
 export const authRouter = Router();
 
@@ -38,6 +39,17 @@ authRouter.post('/google', async (req: Request, res: Response) => {
     if (!payload?.sub || !payload.email || !payload.name) {
       res.status(401).json({ error: 'Invalid token payload' });
       return;
+    }
+
+    try {
+      await recordLogin({
+        sub: payload.sub,
+        email: payload.email,
+        name: payload.name,
+        picture: payload.picture,
+      });
+    } catch (err) {
+      console.error('Failed to record login stats:', err);
     }
 
     req.session.user = {

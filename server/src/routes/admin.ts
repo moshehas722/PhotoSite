@@ -12,7 +12,6 @@ import {
   getAdminEmailList, addAdminEmail, removeAdminEmail,
   getProfile, setProfile,
 } from '../services/config';
-
 export const adminRouter = Router();
 
 adminRouter.use(requireAdmin);

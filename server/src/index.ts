@@ -12,6 +12,8 @@ import { transactionsRouter, handleCancelTransactionBody } from './routes/transa
 import { adminRouter } from './routes/admin';
 import { getAboutContent, getProfile } from './services/config';
 import { FirestoreSessionStore } from './services/sessionStore';
+import { requireAdmin } from './services/admin';
+import { listUsersByLoginCount } from './services/userLoginStats';
 
 const repoRoot = path.resolve(__dirname, '../..');
 const envPath = path.resolve(repoRoot, '.env');
@@ -75,6 +77,17 @@ app.use(
 
 // Registered on the app (not only on transactionsRouter) so POST /api/transactions/cancel is reliable.
 app.post('/api/transactions/cancel', handleCancelTransactionBody);
+
+// Same pattern: ensure GET /api/admin/users is always registered after session (avoids stale nested-router deploys).
+app.get('/api/admin/users', requireAdmin, async (_req, res) => {
+  try {
+    const users = await listUsersByLoginCount();
+    res.json({ users });
+  } catch (err) {
+    console.error('Failed to list users:', err);
+    res.status(500).json({ error: 'Failed to list users' });
+  }
+});
 
 app.use('/api/auth', authRouter);
 app.use('/api/photos', photosRouter);

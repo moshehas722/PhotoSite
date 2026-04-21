@@ -108,3 +108,27 @@ export async function rejectTransaction(
   if (note) update.rejectionNote = note;
   await firestore.collection(COLLECTION).doc(id).update(update);
 }
+
+export type CancelPendingResult =
+  | { ok: true }
+  | { ok: false; reason: 'not_found' | 'forbidden' | 'not_pending' };
+
+export async function cancelPendingTransaction(
+  id: string,
+  userSub: string,
+  userEmail: string
+): Promise<CancelPendingResult> {
+  const ref = firestore.collection(COLLECTION).doc(id);
+  const snap = await ref.get();
+  if (!snap.exists) return { ok: false, reason: 'not_found' };
+  const data = snap.data()!;
+  if (data.userSub !== userSub) return { ok: false, reason: 'forbidden' };
+  if (data.status !== 'pending') return { ok: false, reason: 'not_pending' };
+  await ref.update({
+    status: 'rejected' as TransactionStatus,
+    decidedAt: FieldValue.serverTimestamp(),
+    decidedByEmail: userEmail,
+    rejectionNote: 'Cancelled by user',
+  });
+  return { ok: true };
+}

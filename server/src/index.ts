@@ -8,7 +8,7 @@ import { Firestore } from '@google-cloud/firestore';
 import { photosRouter } from './routes/photos';
 import { foldersRouter } from './routes/folders';
 import { authRouter } from './routes/auth';
-import { transactionsRouter } from './routes/transactions';
+import { transactionsRouter, handleCancelTransactionBody } from './routes/transactions';
 import { adminRouter } from './routes/admin';
 import { getAboutContent, getProfile } from './services/config';
 import { FirestoreSessionStore } from './services/sessionStore';
@@ -72,6 +72,9 @@ app.use(
     },
   })
 );
+
+// Registered on the app (not only on transactionsRouter) so POST /api/transactions/cancel is reliable.
+app.post('/api/transactions/cancel', handleCancelTransactionBody);
 
 app.use('/api/auth', authRouter);
 app.use('/api/photos', photosRouter);

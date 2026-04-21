@@ -6,8 +6,9 @@ export default defineConfig({
   envDir: '..',
   server: {
     proxy: {
+      // 127.0.0.1 avoids IPv6 (::1) vs localhost mismatches when the API only binds to IPv4.
       '/api': {
-        target: 'http://localhost:3001',
+        target: 'http://127.0.0.1:3001',
         changeOrigin: true,
       },
     },

@@ -28,6 +28,7 @@ interface TransactionsContextValue {
   pendingTransactions: Transaction[];
   refresh: () => Promise<void>;
   submitTransaction: (photoIds: string[]) => Promise<void>;
+  cancelPendingTransaction: (id: string) => Promise<void>;
 }
 
 const TransactionsContext = createContext<TransactionsContextValue | null>(null);
@@ -84,6 +85,20 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
     [refresh]
   );
 
+  const cancelPendingTransaction = useCallback(async (id: string) => {
+    const res = await fetch('/api/transactions/cancel', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    });
+    if (!res.ok) {
+      const body = (await res.json().catch(() => ({}))) as { error?: string };
+      throw new Error(body.error ?? 'Failed to cancel');
+    }
+    await refresh();
+  }, [refresh]);
+
   useEffect(() => {
     void refresh();
   }, [refresh]);
@@ -97,6 +112,7 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
         pendingTransactions,
         refresh,
         submitTransaction,
+        cancelPendingTransaction,
       }}
     >
       {children}

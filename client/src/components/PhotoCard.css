@@ -90,3 +90,16 @@
 .photo-card__cart--in:hover::before {
   font-size: 1.3rem;
 }
+
+.photo-card__purchased {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  background: #2ecc71;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 600;
+  pointer-events: none;
+}

@@ -1,6 +1,7 @@
 import type { Photo } from '../types';
 import { useCart } from '../cart/CartContext';
 import { useAuth } from '../auth/AuthContext';
+import { usePurchases } from '../purchases/PurchasesContext';
 import './PhotoCard.css';
 
 interface Props {
@@ -11,7 +12,9 @@ interface Props {
 export function PhotoCard({ photo, onClick }: Props) {
   const { add, remove, has } = useCart();
   const { user } = useAuth();
+  const { purchasedIds } = usePurchases();
   const inCart = has(photo.id);
+  const purchased = purchasedIds.has(photo.id);
 
   const toggleCart = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -26,7 +29,7 @@ export function PhotoCard({ photo, onClick }: Props) {
         alt={photo.name}
         loading="lazy"
       />
-      {user && (
+      {user && !purchased && (
         <button
           className={`photo-card__cart ${inCart ? 'photo-card__cart--in' : ''}`}
           onClick={toggleCart}
@@ -35,6 +38,9 @@ export function PhotoCard({ photo, onClick }: Props) {
         >
           {inCart ? '✓' : '+'}
         </button>
+      )}
+      {user && purchased && (
+        <span className="photo-card__purchased" title="Purchased">✓ Purchased</span>
       )}
       <div className="photo-card__overlay">
         <span className="photo-card__name">{photo.name}</span>

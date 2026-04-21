@@ -33,6 +33,25 @@ body {
   gap: 16px;
 }
 
+.app-header__title {
+  text-decoration: none;
+  color: inherit;
+}
+
+.app-header__link {
+  color: #ccc;
+  text-decoration: none;
+  font-size: 0.9rem;
+  padding: 6px 12px;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+.app-header__link:hover {
+  background: #1a1a1a;
+  color: #fff;
+}
+
 .app-header h1 {
   font-size: 1.5rem;
   font-weight: 600;

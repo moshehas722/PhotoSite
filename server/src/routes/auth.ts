@@ -69,7 +69,13 @@ authRouter.post('/logout', (req: Request, res: Response) => {
       res.status(500).json({ error: 'Failed to log out' });
       return;
     }
-    res.clearCookie('connect.sid');
+    const secure = process.env.NODE_ENV === 'production';
+    res.clearCookie('__session', {
+      path: '/',
+      httpOnly: true,
+      sameSite: 'lax',
+      secure,
+    });
     res.json({ ok: true });
   });
 });

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import './App.css';
 import { Sidebar } from './components/Sidebar';
@@ -9,6 +9,8 @@ import { UserMenu } from './auth/UserMenu';
 import { CartProvider } from './cart/CartContext';
 import { CartButton } from './cart/CartButton';
 import { CartDrawer } from './cart/CartDrawer';
+import { PurchasesProvider } from './purchases/PurchasesContext';
+import { PurchasesView } from './pages/PurchasesView';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID ?? '';
 
@@ -20,6 +22,7 @@ function HeaderCart() {
 
   return (
     <>
+      <Link to="/purchases" className="app-header__link">My Purchases</Link>
       <CartButton onClick={() => setCartOpen(true)} />
       <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
     </>
@@ -30,28 +33,31 @@ function App() {
   return (
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <AuthProvider>
-        <CartProvider>
-          <BrowserRouter>
-            <div className="app">
-              <header className="app-header">
-                <h1>Photo Album</h1>
-                <div className="app-header__right">
-                  <UserMenu />
-                  <HeaderCart />
+        <PurchasesProvider>
+          <CartProvider>
+            <BrowserRouter>
+              <div className="app">
+                <header className="app-header">
+                  <Link to="/" className="app-header__title"><h1>Photo Album</h1></Link>
+                  <div className="app-header__right">
+                    <UserMenu />
+                    <HeaderCart />
+                  </div>
+                </header>
+                <div className="app-body">
+                  <Sidebar />
+                  <main className="app-main">
+                    <Routes>
+                      <Route path="/" element={<FolderView />} />
+                      <Route path="/folder/:folderId" element={<FolderView />} />
+                      <Route path="/purchases" element={<PurchasesView />} />
+                    </Routes>
+                  </main>
                 </div>
-              </header>
-              <div className="app-body">
-                <Sidebar />
-                <main className="app-main">
-                  <Routes>
-                    <Route path="/" element={<FolderView />} />
-                    <Route path="/folder/:folderId" element={<FolderView />} />
-                  </Routes>
-                </main>
               </div>
-            </div>
-          </BrowserRouter>
-        </CartProvider>
+            </BrowserRouter>
+          </CartProvider>
+        </PurchasesProvider>
       </AuthProvider>
     </GoogleOAuthProvider>
   );

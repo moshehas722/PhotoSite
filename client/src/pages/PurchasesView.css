@@ -1,0 +1,46 @@
+.purchases-view__title {
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin-bottom: 20px;
+  color: #eee;
+}
+
+.purchases-view__empty {
+  color: #888;
+  font-size: 1rem;
+}
+
+.purchases-view__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.purchases-view__card {
+  background: #1a1a1a;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.purchases-view__card img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  display: block;
+}
+
+.purchases-view__download {
+  background: #2a6cf0;
+  color: #fff;
+  text-align: center;
+  padding: 10px;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: background 0.15s;
+}
+
+.purchases-view__download:hover {
+  background: #1e55c9;
+}

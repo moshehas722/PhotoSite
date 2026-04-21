@@ -1,17 +1,9 @@
-import { GoogleLogin, useGoogleOneTapLogin } from '@react-oauth/google';
+import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from './AuthContext';
 import './UserMenu.css';
 
 export function UserMenu() {
   const { user, loading, login, logout } = useAuth();
-
-  useGoogleOneTapLogin({
-    disabled: loading || !!user,
-    onSuccess: (response) => {
-      if (response.credential) void login(response.credential);
-    },
-    onError: () => console.warn('One Tap login failed'),
-  });
 
   if (loading) return null;
 
@@ -30,6 +22,7 @@ export function UserMenu() {
   return (
     <div className="user-menu">
       <GoogleLogin
+        useOneTap
         onSuccess={(response) => {
           if (response.credential) void login(response.credential);
         }}

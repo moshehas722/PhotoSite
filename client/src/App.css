@@ -131,7 +131,7 @@ body {
 
 .app-main {
   flex: 1;
-  padding: 16px 24px;
+  padding: 8px 24px;
   overflow-y: auto;
   min-width: 0;
 }

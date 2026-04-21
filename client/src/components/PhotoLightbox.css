@@ -14,7 +14,14 @@
   image-rendering: auto;
 }
 
-/* Toolbar matches thumbnail card controls (top-right); cart is hover-hidden on grid — always show here */
+/* Grid cards keep actions top-right; lightbox toolbar (zoom + close) is top-right — use top-left here */
+.lightbox-slide .photo-card__cart,
+.lightbox-slide .photo-card__download,
+.lightbox-slide .photo-card__pending {
+  left: 8px;
+  right: auto;
+}
+
 .lightbox-slide .photo-card__cart {
   opacity: 1;
 }

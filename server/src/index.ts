@@ -10,6 +10,7 @@ import { foldersRouter } from './routes/folders';
 import { authRouter } from './routes/auth';
 import { transactionsRouter, handleCancelTransactionBody } from './routes/transactions';
 import { adminRouter } from './routes/admin';
+import { folderAccessRouter } from './routes/folderAccess';
 import { getAboutContent, getProfile } from './services/config';
 import { FirestoreSessionStore } from './services/sessionStore';
 import { requireAdmin } from './services/admin';
@@ -93,6 +94,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/photos', photosRouter);
 app.use('/api/folders', foldersRouter);
 app.use('/api/transactions', transactionsRouter);
+app.use('/api/folder-access', folderAccessRouter);
 app.use('/api/admin', adminRouter);
 
 app.get('/api/profile', async (_req, res) => {

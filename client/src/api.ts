@@ -1,6 +1,20 @@
 import type { FolderContents, RecentFolder } from './types';
 import type { Transaction } from './transactions/TransactionsContext';
 
+export interface FolderAccessRequest {
+  id: string;
+  userSub: string;
+  userEmail: string;
+  userName: string;
+  folderId: string;
+  folderName: string;
+  status: 'pending' | 'approved' | 'rejected';
+  createdAt: number;
+  decidedAt?: number;
+  decidedByEmail?: string;
+  rejectionNote?: string;
+}
+
 export async function fetchFolderContents(folderId: string): Promise<FolderContents> {
   const res = await fetch(`/api/folders/${encodeURIComponent(folderId)}`);
   if (!res.ok) throw new Error(`Failed to fetch folder: ${res.statusText}`);
@@ -165,6 +179,51 @@ export async function fetchAdminUsers(): Promise<AdminUserStats[]> {
   if (!res.ok) throw new Error(`Failed to fetch users: ${res.statusText}`);
   const data = (await res.json()) as { users: AdminUserStats[] };
   return data.users;
+}
+
+export async function fetchMyFolderAccessRequests(): Promise<FolderAccessRequest[]> {
+  const res = await fetch('/api/folder-access/mine', { credentials: 'include' });
+  if (!res.ok) throw new Error('Failed to fetch folder access requests');
+  const data = (await res.json()) as { requests: FolderAccessRequest[] };
+  return data.requests;
+}
+
+export async function requestFolderAccess(folderId: string, folderName: string): Promise<void> {
+  const res = await fetch('/api/folder-access', {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ folderId, folderName }),
+  });
+  if (!res.ok) {
+    const body = (await res.json().catch(() => ({}))) as { error?: string };
+    throw new Error(body.error ?? 'Failed to request access');
+  }
+}
+
+export async function fetchPendingFolderAccessRequests(): Promise<FolderAccessRequest[]> {
+  const res = await fetch('/api/admin/folder-access', { credentials: 'include' });
+  if (!res.ok) throw new Error('Failed to fetch folder access requests');
+  const data = (await res.json()) as { requests: FolderAccessRequest[] };
+  return data.requests;
+}
+
+export async function approveFolderAccessRequest(id: string): Promise<void> {
+  const res = await fetch(`/api/admin/folder-access/${id}/approve`, {
+    method: 'POST',
+    credentials: 'include',
+  });
+  if (!res.ok) throw new Error('Approve failed');
+}
+
+export async function rejectFolderAccessRequest(id: string, note?: string): Promise<void> {
+  const res = await fetch(`/api/admin/folder-access/${id}/reject`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ note }),
+  });
+  if (!res.ok) throw new Error('Reject failed');
 }
 
 export async function setUserFullAccess(userSub: string, fullAccess: boolean): Promise<void> {

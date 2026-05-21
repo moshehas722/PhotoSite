@@ -13,6 +13,11 @@ import {
   getProfile, setProfile,
 } from '../services/config';
 import { setUserFullAccess } from '../services/userLoginStats';
+import {
+  listPendingFolderAccessRequests,
+  approveFolderAccessRequest,
+  rejectFolderAccessRequest,
+} from '../services/folderAccess';
 
 export const adminRouter = Router();
 
@@ -174,6 +179,37 @@ adminRouter.put('/profile', async (req: Request, res: Response) => {
   } catch (err) {
     console.error('Failed to save profile:', err);
     res.status(500).json({ error: 'Failed to save profile' });
+  }
+});
+
+adminRouter.get('/folder-access', async (_req: Request, res: Response) => {
+  try {
+    const requests = await listPendingFolderAccessRequests();
+    res.json({ requests });
+  } catch (err) {
+    console.error('Failed to list folder access requests:', err);
+    res.status(500).json({ error: 'Failed to list folder access requests' });
+  }
+});
+
+adminRouter.post('/folder-access/:id/approve', async (req: Request, res: Response) => {
+  try {
+    await approveFolderAccessRequest(req.params.id, req.session.user!.email);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Failed to approve folder access request:', err);
+    res.status(500).json({ error: 'Failed to approve folder access request' });
+  }
+});
+
+adminRouter.post('/folder-access/:id/reject', async (req: Request, res: Response) => {
+  try {
+    const { note } = (req.body ?? {}) as { note?: string };
+    await rejectFolderAccessRequest(req.params.id, req.session.user!.email, note);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Failed to reject folder access request:', err);
+    res.status(500).json({ error: 'Failed to reject folder access request' });
   }
 });
 

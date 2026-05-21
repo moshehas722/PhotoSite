@@ -15,9 +15,10 @@ const BREAKPOINTS = {
 
 interface Props {
   photos: Photo[];
+  folderId?: string;
 }
 
-export function Gallery({ photos }: Props) {
+export function Gallery({ photos, folderId }: Props) {
   const [lightboxIndex, setLightboxIndex] = useState(-1);
 
   if (photos.length === 0) {
@@ -35,6 +36,7 @@ export function Gallery({ photos }: Props) {
           <PhotoCard
             key={photo.id}
             photo={photo}
+            folderId={folderId}
             onClick={() => setLightboxIndex(i)}
           />
         ))}
@@ -45,6 +47,7 @@ export function Gallery({ photos }: Props) {
         index={lightboxIndex}
         onClose={() => setLightboxIndex(-1)}
         onNavigate={setLightboxIndex}
+        folderId={folderId}
       />
     </>
   );

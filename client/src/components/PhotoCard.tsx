@@ -2,21 +2,25 @@ import type { Photo } from '../types';
 import { useCart } from '../cart/CartContext';
 import { useAuth } from '../auth/AuthContext';
 import { useTransactions } from '../transactions/TransactionsContext';
+import { useFolderAccess } from '../context/FolderAccessContext';
 import './PhotoCard.css';
 
 interface Props {
   photo: Photo;
+  folderId?: string;
   onClick: () => void;
 }
 
-export function PhotoCard({ photo, onClick }: Props) {
+export function PhotoCard({ photo, folderId, onClick }: Props) {
   const { add, remove, has } = useCart();
   const { user } = useAuth();
   const { approvedIds, pendingIds } = useTransactions();
+  const { approvedFolderIds } = useFolderAccess();
   const inCart = has(photo.id);
   const fullAccess = user?.fullAccess === true;
-  const purchased = approvedIds.has(photo.id) || fullAccess;
-  const pending = !fullAccess && !approvedIds.has(photo.id) && pendingIds.has(photo.id);
+  const folderAccess = folderId ? approvedFolderIds.has(folderId) : false;
+  const purchased = approvedIds.has(photo.id) || fullAccess || folderAccess;
+  const pending = !fullAccess && !folderAccess && !approvedIds.has(photo.id) && pendingIds.has(photo.id);
 
   const toggleCart = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -44,7 +48,7 @@ export function PhotoCard({ photo, onClick }: Props) {
       {user && purchased && (
         <a
           className="photo-card__download"
-          href={`/api/photos/${photo.id}/full`}
+          href={`/api/photos/${photo.id}/full${folderAccess && folderId ? `?folderId=${encodeURIComponent(folderId)}` : ''}`}
           download
           onClick={(e) => e.stopPropagation()}
           aria-label="Download full resolution"

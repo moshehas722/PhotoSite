@@ -24,7 +24,7 @@
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   font-size: 35px;
   font-weight: 300;
-  margin-bottom: 4px;
+  margin-bottom: 0;
   padding-left: 12px;
   color: var(--text);
 }
@@ -48,4 +48,37 @@
 
 .folder-view__subfolder-link:hover {
   color: var(--text);
+}
+
+.folder-view__title-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.folder-view__access-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  padding: 2px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  transition: color 0.15s;
+}
+
+.folder-view__access-btn:hover:not(:disabled) {
+  color: var(--text-2);
+}
+
+.folder-view__access-btn:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.folder-view__access-pending {
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
 }

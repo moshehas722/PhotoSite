@@ -6,6 +6,7 @@ import type { Photo } from '../types';
 import { useCart } from '../cart/CartContext';
 import { useAuth } from '../auth/AuthContext';
 import { useTransactions } from '../transactions/TransactionsContext';
+import { useFolderAccess } from '../context/FolderAccessContext';
 import './PhotoCard.css';
 import './PhotoLightbox.css';
 
@@ -17,13 +18,16 @@ interface Props {
   index: number;
   onClose: () => void;
   onNavigate: (index: number) => void;
+  folderId?: string;
 }
 
-export function PhotoLightbox({ photos, index, onClose, onNavigate }: Props) {
+export function PhotoLightbox({ photos, index, onClose, onNavigate, folderId }: Props) {
   const { user } = useAuth();
   const { add, remove, has } = useCart();
   const { approvedIds, pendingIds } = useTransactions();
+  const { approvedFolderIds } = useFolderAccess();
   const fullAccess = user?.fullAccess === true;
+  const folderAccess = folderId ? approvedFolderIds.has(folderId) : false;
   const [naturalById, setNaturalById] = useState<
     Record<string, { width: number; height: number }>
   >({});
@@ -46,12 +50,12 @@ export function PhotoLightbox({ photos, index, onClose, onNavigate }: Props) {
       width: natural?.width ?? PLACEHOLDER_DIM.width,
       height: natural?.height ?? PLACEHOLDER_DIM.height,
       src:
-        fullAccess || approvedIds.has(p.id)
-          ? `/api/photos/${p.id}/full`
+        fullAccess || approvedIds.has(p.id) || folderAccess
+          ? `/api/photos/${p.id}/full${folderAccess && folderId ? `?folderId=${encodeURIComponent(folderId)}` : ''}`
           : `/api/photos/${p.id}/thumbnail`,
-      purchased: fullAccess || approvedIds.has(p.id),
+      purchased: fullAccess || approvedIds.has(p.id) || folderAccess,
       pending:
-        !fullAccess && !approvedIds.has(p.id) && pendingIds.has(p.id),
+        !fullAccess && !folderAccess && !approvedIds.has(p.id) && pendingIds.has(p.id),
     };
   });
 
@@ -102,7 +106,7 @@ export function PhotoLightbox({ photos, index, onClose, onNavigate }: Props) {
               {user && s.purchased && (
                 <a
                   className="photo-card__download"
-                  href={`/api/photos/${s.id}/full`}
+                  href={`/api/photos/${s.id}/full${folderAccess && folderId ? `?folderId=${encodeURIComponent(folderId)}` : ''}`}
                   download
                   onClick={(e) => e.stopPropagation()}
                   aria-label="Download full resolution"

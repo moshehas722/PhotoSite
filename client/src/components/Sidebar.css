@@ -108,6 +108,7 @@
   text-overflow: ellipsis;
 }
 
+
 .tree-node__status {
   font-size: 0.8rem;
   color: var(--text-dim);

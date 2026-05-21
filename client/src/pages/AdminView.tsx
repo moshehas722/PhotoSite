@@ -16,10 +16,14 @@ import {
   removeAdmin,
   fetchAdminUsers,
   setUserFullAccess,
+  fetchPendingFolderAccessRequests,
+  approveFolderAccessRequest,
+  rejectFolderAccessRequest,
   type AdminSettings,
   type SiteProfile,
   type AdminEntry,
   type AdminUserStats,
+  type FolderAccessRequest,
 } from '../api';
 import type { Transaction } from '../transactions/TransactionsContext';
 import './AdminView.css';
@@ -638,7 +642,122 @@ function AdministratorsPanel() {
   );
 }
 
-type Tab = 'transactions' | 'users' | 'gdrive' | 'profile' | 'administrators';
+function AccessRequestsPanel() {
+  const { user } = useAuth();
+  const [requests, setRequests] = useState<FolderAccessRequest[]>([]);
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [rejectingId, setRejectingId] = useState<string | null>(null);
+  const [rejectNote, setRejectNote] = useState('');
+  const [error, setError] = useState<string | null>(null);
+
+  const refresh = useCallback(async () => {
+    try {
+      setError(null);
+      setRequests(await fetchPendingFolderAccessRequests());
+    } catch {
+      setError('Failed to load access requests.');
+    }
+  }, []);
+
+  useEffect(() => {
+    if (user?.isAdmin) void refresh();
+  }, [user, refresh]);
+
+  const handleApprove = async (id: string) => {
+    setBusyId(id);
+    try {
+      await approveFolderAccessRequest(id);
+      setRequests((prev) => prev.filter((r) => r.id !== id));
+    } catch {
+      setError('Approval failed.');
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const handleConfirmReject = async (id: string) => {
+    setBusyId(id);
+    try {
+      await rejectFolderAccessRequest(id, rejectNote || undefined);
+      setRequests((prev) => prev.filter((r) => r.id !== id));
+      setRejectingId(null);
+      setRejectNote('');
+    } catch {
+      setError('Rejection failed.');
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  return (
+    <section>
+      {error && <div className="admin-view__error">{error}</div>}
+      {requests.length === 0 ? (
+        <div className="admin-view__empty">No pending access requests.</div>
+      ) : (
+        <ul className="tx-list">
+          {requests.map((req) => {
+            const busy = busyId === req.id;
+            const rejecting = rejectingId === req.id;
+            return (
+              <li key={req.id} className="tx-row">
+                <div className="tx-row__main">
+                  <span className="tx-row__name">{req.userName}</span>
+                  <span className="tx-row__email">{req.userEmail}</span>
+                  <div className="tx-row__meta-line">
+                    <span className="tx-row__date">{new Date(req.createdAt).toLocaleDateString()}</span>
+                    <span className="tx-row__count">📁 {req.folderName || req.folderId}</span>
+                    <div className="tx-row__actions">
+                      <button
+                        className="admin-view__btn admin-view__btn--primary admin-view__btn--sm"
+                        disabled={busy}
+                        onClick={() => void handleApprove(req.id)}
+                      >
+                        Approve
+                      </button>
+                      <button
+                        className="admin-view__btn admin-view__btn--sm"
+                        disabled={busy}
+                        onClick={() => { setRejectingId(req.id); setRejectNote(''); }}
+                      >
+                        Reject
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                {rejecting && (
+                  <div className="tx-row__reject">
+                    <input
+                      type="text"
+                      placeholder="Reason (optional)"
+                      value={rejectNote}
+                      onChange={(e) => setRejectNote(e.target.value)}
+                    />
+                    <button
+                      className="admin-view__btn admin-view__btn--danger admin-view__btn--sm"
+                      disabled={busy}
+                      onClick={() => void handleConfirmReject(req.id)}
+                    >
+                      Confirm
+                    </button>
+                    <button
+                      className="admin-view__btn admin-view__btn--sm"
+                      onClick={() => { setRejectingId(null); setRejectNote(''); }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </section>
+  );
+}
+
+type Tab = 'transactions' | 'users' | 'gdrive' | 'profile' | 'administrators' | 'access-requests';
 
 export function AdminView() {
   const { user, loading } = useAuth();
@@ -680,6 +799,12 @@ export function AdminView() {
         >
           Administrators
         </button>
+        <button
+          className={`admin-tabs__tab ${tab === 'access-requests' ? 'admin-tabs__tab--active' : ''}`}
+          onClick={() => setTab('access-requests')}
+        >
+          Access Requests
+        </button>
       </div>
 
       {tab === 'transactions' && <TransactionsPanel />}
@@ -687,6 +812,7 @@ export function AdminView() {
       {tab === 'gdrive' && <SettingsPanel />}
       {tab === 'profile' && <ProfilePanel />}
       {tab === 'administrators' && <AdministratorsPanel />}
+      {tab === 'access-requests' && <AccessRequestsPanel />}
     </div>
   );
 }

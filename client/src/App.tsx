@@ -16,6 +16,7 @@ import { PurchasesView } from './pages/PurchasesView';
 import { AdminView } from './pages/AdminView';
 import { AboutView } from './pages/AboutView';
 import { FolderHierarchyProvider } from './context/FolderHierarchyContext';
+import { FolderAccessProvider } from './context/FolderAccessContext';
 import { InfoIcon } from './icons/InfoIcon';
 import { ShoppingIcon } from './icons/ShoppingIcon';
 import { HomeIcon } from './icons/HomeIcon';
@@ -49,6 +50,7 @@ function App() {
       <ThemeProvider>
       <AuthProvider>
         <TransactionsProvider>
+          <FolderAccessProvider>
           <CartProvider>
             <FolderHierarchyProvider>
             <BrowserRouter>
@@ -85,6 +87,7 @@ function App() {
             </BrowserRouter>
             </FolderHierarchyProvider>
           </CartProvider>
+          </FolderAccessProvider>
         </TransactionsProvider>
       </AuthProvider>
       </ThemeProvider>

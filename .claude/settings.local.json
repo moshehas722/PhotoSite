@@ -61,7 +61,13 @@
       "Bash(fuser -k 3001/tcp)",
       "Bash(pkill -f \"concurrently\\\\|npm run dev\\\\|tsx watch\")",
       "Bash(awk '{print $2}')",
-      "Bash(xargs -I {} sh -c 'echo \"PID: {}\"; cat /proc/{}/cmdline 2>/dev/null | tr \"\\\\0\" \" \"; echo')"
+      "Bash(xargs -I {} sh -c 'echo \"PID: {}\"; cat /proc/{}/cmdline 2>/dev/null | tr \"\\\\0\" \" \"; echo')",
+      "PowerShell(npm run dev 2>&1)",
+      "PowerShell(Start-Sleep -Seconds 8; try { $r = Invoke-WebRequest http://localhost:5173/ -UseBasicParsing -TimeoutSec 5; \"HTTP $\\($r.StatusCode\\)\" } catch { \"Error: $_\" })",
+      "PowerShell(Get-ChildItem \"C:\\\\Program Files\\\\nodejs\\\\npm.cmd\" -ErrorAction SilentlyContinue; Get-ChildItem \"$env:APPDATA\\\\npm\\\\npm.cmd\" -ErrorAction SilentlyContinue; Get-ChildItem \"C:\\\\Users\\\\moshe\\\\AppData\\\\Roaming\\\\nvm\" -ErrorAction SilentlyContinue | Select-Object -First 5; Get-ChildItem \"C:\\\\nvm\" -ErrorAction SilentlyContinue | Select-Object -First 5)",
+      "PowerShell($env:PATH -split ';' | Where-Object { $_ -match 'node|npm|nvm' })",
+      "PowerShell([System.Environment]::GetEnvironmentVariable\\(\"PATH\", \"Machine\"\\) -split ';' | Select-String -Pattern 'node|npm|nvm' -SimpleMatch)",
+      "Bash(Get-ChildItem -Path C:\\\\dev\\\\PhotoSite -Force)"
     ]
   }
 }

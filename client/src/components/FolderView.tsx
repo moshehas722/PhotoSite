@@ -91,7 +91,7 @@ export function FolderView() {
             </button>
           )
         )}
-        {contents.folders.length > 0 && (
+        {contents.photos.length > 0 && contents.folders.length > 0 && (
           <div className="folder-view__subfolders">
             {contents.folders.map((folder) => (
               <Link
@@ -106,8 +106,30 @@ export function FolderView() {
         )}
       </div>
       {contents.photos.length === 0 && contents.folders.length > 0 ? (
-        <div className="gallery-status">
-          This folder has no photos — pick a subfolder in the sidebar.
+        <div className="subfolder-grid">
+          {contents.folders.map((folder) => (
+            <Link
+              key={folder.id}
+              to={`/folder/${folder.id}`}
+              className="subfolder-tile"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="subfolder-tile__icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden
+              >
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                <circle cx="12" cy="13" r="4" />
+              </svg>
+              <span className="subfolder-tile__name">{folder.name}</span>
+            </Link>
+          ))}
         </div>
       ) : (
         <Gallery photos={contents.photos} folderId={targetId} />

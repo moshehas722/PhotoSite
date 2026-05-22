@@ -46,7 +46,7 @@ export function Sidebar() {
       </button>
       {open && <div className="sidebar__backdrop" onClick={close} />}
       <aside className={`sidebar ${open ? 'sidebar--open' : ''}`}>
-        <div className="sidebar__header">Galleries</div>
+
         <div className="sidebar__tree">
           {tree === null ? (
             <div className="sidebar__loading">Loading…</div>

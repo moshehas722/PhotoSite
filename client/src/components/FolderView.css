@@ -57,28 +57,32 @@
   margin-bottom: 4px;
 }
 
-.folder-view__access-btn {
+.folder-view__access-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-weight: 400;
+  padding-left: 13px;
+  margin-top: 2px;
+}
+
+.folder-view__access-note--btn {
   background: none;
   border: none;
-  color: var(--text-muted);
-  padding: 2px;
+  padding: 0;
+  padding-left: 13px;
   cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  transition: color 0.15s;
+  color: #e03e3e;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
-.folder-view__access-btn:hover:not(:disabled) {
-  color: var(--text-2);
+.folder-view__access-note--btn:hover {
+  color: #b52a2a;
 }
 
-.folder-view__access-btn:disabled {
-  cursor: default;
-  opacity: 0.5;
-}
-
-.folder-view__access-pending {
+.folder-view__access-note--pending {
   color: var(--text-muted);
-  display: inline-flex;
-  align-items: center;
 }

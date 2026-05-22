@@ -67,75 +67,30 @@ export function FolderView() {
         </div>
         <div className="folder-view__title-row">
           <h2 className="folder-view__title">{isRoot ? 'Home' : contents.name}</h2>
-          {showAccessBtn && (
-            pending ? (
-              <span
-                className="folder-view__access-pending"
-                title="Access requested — awaiting admin approval"
-                role="img"
-                aria-label="Access requested"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden
-                >
-                  <circle cx="12" cy="12" r="10" />
-                  <polyline points="12 6 12 12 16 14" />
-                </svg>
-              </span>
-            ) : (
-              <button
-                className="folder-view__access-btn"
-                onClick={() => void handleRequestAccess()}
-                disabled={requesting}
-                title="Request access to download photos in this folder"
-                aria-label="Request access"
-              >
-                {requesting ? (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden
-                  >
-                    <circle cx="12" cy="12" r="10" />
-                    <polyline points="12 6 12 12 16 14" />
-                  </svg>
-                ) : (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden
-                  >
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                  </svg>
-                )}
-              </button>
-            )
-          )}
         </div>
+        {showAccessBtn && (
+          pending || requesting ? (
+            <span className="folder-view__access-note folder-view__access-note--pending">
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg>
+              {requesting ? 'Requesting…' : 'Access requested — awaiting approval'}
+            </span>
+          ) : (
+            <button
+              className="folder-view__access-note folder-view__access-note--btn"
+              onClick={() => void handleRequestAccess()}
+              title="Request access to download photos in this folder"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
+              Request access to see hi-res version
+            </button>
+          )
+        )}
         {contents.folders.length > 0 && (
           <div className="folder-view__subfolders">
             {contents.folders.map((folder) => (

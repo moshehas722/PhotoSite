@@ -61,6 +61,12 @@ export function PhotoLightbox({ photos, index, onClose, onNavigate, folderId }: 
     };
   });
 
+  const currentSlide = index >= 0 && index < slides.length ? slides[index] : null;
+
+  const downloadHref = currentSlide
+    ? `/api/photos/${currentSlide.id}/full${folderAccess && folderId ? `?folderId=${encodeURIComponent(folderId)}` : ''}`
+    : '';
+
   const toggleCart = (e: React.MouseEvent, photo: Photo) => {
     e.stopPropagation();
     if (has(photo.id)) remove(photo.id);
@@ -75,6 +81,40 @@ export function PhotoLightbox({ photos, index, onClose, onNavigate, folderId }: 
         maxZoomPixelRatio: 4,
         /** Better pinch handling on mobile Safari / Chrome */
         pinchZoomV4: true,
+      }}
+      toolbar={{
+        buttons: [
+          ...(user && currentSlide?.purchased
+            ? [
+                <a
+                  key="download"
+                  className="yarl__button"
+                  href={downloadHref}
+                  download
+                  aria-label="Download full resolution"
+                  title="Download full resolution"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="28"
+                    height="28"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden
+                  >
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                  </svg>
+                </a>,
+              ]
+            : []),
+          'close',
+        ],
       }}
       open={index >= 0}
       close={onClose}
@@ -104,34 +144,6 @@ export function PhotoLightbox({ photos, index, onClose, onNavigate, folderId }: 
                 >
                   {inCart ? '✓' : '+'}
                 </button>
-              )}
-              {user && s.purchased && (
-                <a
-                  className="photo-card__download"
-                  href={`/api/photos/${s.id}/full${folderAccess && folderId ? `?folderId=${encodeURIComponent(folderId)}` : ''}`}
-                  download
-                  onClick={(e) => e.stopPropagation()}
-                  aria-label="Download full resolution"
-                  title="Download full resolution"
-                >
-                  <svg
-                    className="photo-card__download-icon"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden
-                  >
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                    <polyline points="7 10 12 15 17 10" />
-                    <line x1="12" y1="15" x2="12" y2="3" />
-                  </svg>
-                </a>
               )}
               {user && s.pending && (
                 <span

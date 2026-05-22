@@ -7,6 +7,7 @@ import { useCart } from '../cart/CartContext';
 import { useAuth } from '../auth/AuthContext';
 import { useTransactions } from '../transactions/TransactionsContext';
 import { useFolderAccess } from '../context/FolderAccessContext';
+import { useSiteConfig } from '../context/SiteConfigContext';
 import './PhotoCard.css';
 import './PhotoLightbox.css';
 
@@ -27,6 +28,7 @@ export function PhotoLightbox({ photos, index, onClose, onNavigate, folderId }: 
   const { approvedIds, pendingIds } = useTransactions();
   const { approvedFolderIds } = useFolderAccess();
   const fullAccess = user?.fullAccess === true;
+  const { cartEnabled } = useSiteConfig();
   const folderAccess = folderId ? approvedFolderIds.has(folderId) : false;
   const [naturalById, setNaturalById] = useState<
     Record<string, { width: number; height: number }>
@@ -92,7 +94,7 @@ export function PhotoLightbox({ photos, index, onClose, onNavigate, folderId }: 
                 className="lightbox-slide__img"
                 onLoad={(e) => onImgLoad(s.id, e.currentTarget)}
               />
-              {user && !s.purchased && !s.pending && (
+              {user && cartEnabled && !s.purchased && !s.pending && (
                 <button
                   type="button"
                   className={`photo-card__cart ${inCart ? 'photo-card__cart--in' : ''}`}

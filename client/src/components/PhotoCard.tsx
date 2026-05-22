@@ -3,6 +3,7 @@ import { useCart } from '../cart/CartContext';
 import { useAuth } from '../auth/AuthContext';
 import { useTransactions } from '../transactions/TransactionsContext';
 import { useFolderAccess } from '../context/FolderAccessContext';
+import { useSiteConfig } from '../context/SiteConfigContext';
 import './PhotoCard.css';
 
 interface Props {
@@ -16,6 +17,7 @@ export function PhotoCard({ photo, folderId, onClick }: Props) {
   const { user } = useAuth();
   const { approvedIds, pendingIds } = useTransactions();
   const { approvedFolderIds } = useFolderAccess();
+  const { cartEnabled } = useSiteConfig();
   const inCart = has(photo.id);
   const fullAccess = user?.fullAccess === true;
   const folderAccess = folderId ? approvedFolderIds.has(folderId) : false;
@@ -35,7 +37,7 @@ export function PhotoCard({ photo, folderId, onClick }: Props) {
         alt={photo.name}
         loading="lazy"
       />
-      {user && !purchased && !pending && (
+      {user && cartEnabled && !purchased && !pending && (
         <button
           className={`photo-card__cart ${inCart ? 'photo-card__cart--in' : ''}`}
           onClick={toggleCart}

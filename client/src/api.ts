@@ -226,6 +226,26 @@ export async function rejectFolderAccessRequest(id: string, note?: string): Prom
   if (!res.ok) throw new Error('Reject failed');
 }
 
+export async function fetchCartEnabled(): Promise<boolean> {
+  const res = await fetch('/api/admin/cart-enabled', { credentials: 'include' });
+  if (!res.ok) return true;
+  const data = (await res.json()) as { cartEnabled: boolean };
+  return data.cartEnabled;
+}
+
+export async function saveCartEnabled(enabled: boolean): Promise<void> {
+  const res = await fetch('/api/admin/cart-enabled', {
+    method: 'PUT',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ cartEnabled: enabled }),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({})) as { error?: string };
+    throw new Error(body.error ?? 'Failed to save cart setting');
+  }
+}
+
 export async function setUserFullAccess(userSub: string, fullAccess: boolean): Promise<void> {
   const res = await fetch(
     `/api/admin/users/${encodeURIComponent(userSub)}/full-access`,

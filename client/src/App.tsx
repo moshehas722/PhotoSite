@@ -17,6 +17,7 @@ import { AdminView } from './pages/AdminView';
 import { AboutView } from './pages/AboutView';
 import { FolderHierarchyProvider } from './context/FolderHierarchyContext';
 import { FolderAccessProvider } from './context/FolderAccessContext';
+import { SiteConfigProvider, useSiteConfig } from './context/SiteConfigContext';
 import { InfoIcon } from './icons/InfoIcon';
 import { ShoppingIcon } from './icons/ShoppingIcon';
 import { HomeIcon } from './icons/HomeIcon';
@@ -25,16 +26,19 @@ const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID ?? '';
 
 function HeaderCart() {
   const { user } = useAuth();
+  const { cartEnabled } = useSiteConfig();
   const [cartOpen, setCartOpen] = useState(false);
 
   if (!user) return null;
 
   return (
     <>
-      <Link to="/purchases" className="app-header__icon-btn" aria-label="My Purchases">
-        <ShoppingIcon />
-      </Link>
-      {!user.fullAccess && (
+      {cartEnabled && (
+        <Link to="/purchases" className="app-header__icon-btn" aria-label="My Purchases">
+          <ShoppingIcon />
+        </Link>
+      )}
+      {cartEnabled && !user.fullAccess && (
         <>
           <CartButton onClick={() => setCartOpen(true)} />
           <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
@@ -49,6 +53,7 @@ function App() {
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <ThemeProvider>
       <AuthProvider>
+        <SiteConfigProvider>
         <TransactionsProvider>
           <FolderAccessProvider>
           <CartProvider>
@@ -89,6 +94,7 @@ function App() {
           </CartProvider>
           </FolderAccessProvider>
         </TransactionsProvider>
+        </SiteConfigProvider>
       </AuthProvider>
       </ThemeProvider>
     </GoogleOAuthProvider>

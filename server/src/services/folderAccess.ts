@@ -1,4 +1,5 @@
 import { Firestore, FieldValue, Timestamp } from '@google-cloud/firestore';
+import { notifyAdminFolderAccessRequest, notifyUserFolderAccessApproved } from './email';
 
 const firestore = new Firestore();
 const COLLECTION = 'folderAccessRequests';
@@ -71,6 +72,12 @@ export async function createFolderAccessRequest(
     status: 'pending' as FolderAccessStatus,
     createdAt: FieldValue.serverTimestamp(),
   });
+
+  // Fire-and-forget — don't fail the request if email sending fails
+  notifyAdminFolderAccessRequest(user.name, user.email, folderName).catch((err) =>
+    console.error('[email] Failed to notify admin:', err)
+  );
+
   return ref.id;
 }
 
@@ -106,11 +113,18 @@ export async function hasFolderAccess(userSub: string, folderId: string): Promis
 }
 
 export async function approveFolderAccessRequest(id: string, adminEmail: string): Promise<void> {
+  const snap = await firestore.collection(COLLECTION).doc(id).get();
   await firestore.collection(COLLECTION).doc(id).update({
     status: 'approved' as FolderAccessStatus,
     decidedAt: FieldValue.serverTimestamp(),
     decidedByEmail: adminEmail,
   });
+  const data = snap.data();
+  if (data) {
+    notifyUserFolderAccessApproved(data.userEmail, data.userName, data.folderName, data.folderId).catch((err) =>
+      console.error('[email] Failed to notify user of approval:', err)
+    );
+  }
 }
 
 export async function rejectFolderAccessRequest(

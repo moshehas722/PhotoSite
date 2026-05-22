@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import {
@@ -19,12 +19,15 @@ import {
   fetchPendingFolderAccessRequests,
   approveFolderAccessRequest,
   rejectFolderAccessRequest,
+  fetchCartEnabled,
+  saveCartEnabled,
   type AdminSettings,
   type SiteProfile,
   type AdminEntry,
   type AdminUserStats,
   type FolderAccessRequest,
 } from '../api';
+import { useSiteConfig } from '../context/SiteConfigContext';
 import type { Transaction } from '../transactions/TransactionsContext';
 import './AdminView.css';
 
@@ -37,17 +40,73 @@ function extractFolderId(input: string): string {
 }
 
 
+function ServiceAccountEmail({ email }: { email: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(email);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // clipboard unavailable
+    }
+  };
+
+  return (
+    <div className="admin-settings__sa-row">
+      <code className="admin-settings__code">{email}</code>
+      <button
+        className="admin-settings__copy-btn"
+        onClick={() => void handleCopy()}
+        title={copied ? 'Copied!' : 'Copy to clipboard'}
+        aria-label={copied ? 'Copied!' : 'Copy service account email'}
+      >
+        {copied ? (
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" strokeWidth="2.5"
+            strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        ) : (
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" strokeWidth="2"
+            strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+          </svg>
+        )}
+      </button>
+    </div>
+  );
+}
+
 function SettingsPanel() {
   const [settings, setSettings] = useState<AdminSettings | null>(null);
   const [folderInput, setFolderInput] = useState('');
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState<string | null>(null);
+  const { cartEnabled, setCartEnabled: setCartEnabledCtx } = useSiteConfig();
+  const [cartSaving, setCartSaving] = useState(false);
 
   useEffect(() => {
     fetchAdminSettings()
       .then((s) => { setSettings(s); setFolderInput(s.driveFolderId); })
       .catch(() => {});
-  }, []);
+    fetchCartEnabled().then(setCartEnabledCtx).catch(() => {});
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleCartToggle = async (enabled: boolean) => {
+    setCartSaving(true);
+    try {
+      await saveCartEnabled(enabled);
+      setCartEnabledCtx(enabled);
+    } catch {
+      // silently ignore
+    } finally {
+      setCartSaving(false);
+    }
+  };
 
   const handleSave = async () => {
     const id = extractFolderId(folderInput);
@@ -66,55 +125,77 @@ function SettingsPanel() {
   };
 
   return (
-    <section className="admin-settings">
-      <div className="admin-settings__field">
-        <label className="admin-settings__label">Google Drive Folder</label>
-        <div className="admin-settings__row">
-          <input
-            className="admin-settings__input"
-            type="text"
-            placeholder="Paste folder URL or ID"
-            value={folderInput}
-            onChange={(e) => setFolderInput(e.target.value)}
-          />
-          <button
-            className="admin-view__btn admin-view__btn--primary"
-            onClick={() => void handleSave()}
-            disabled={saving || !folderInput.trim()}
-          >
-            {saving ? 'Saving…' : 'Save'}
-          </button>
-        </div>
-        {saveMsg && (
-          <span className={`admin-settings__msg ${saveMsg === 'Saved.' ? 'admin-settings__msg--ok' : 'admin-settings__msg--err'}`}>
-            {saveMsg}
-          </span>
-        )}
-        {settings?.driveFolderId && (
-          <span className="admin-settings__current">Current ID: {settings.driveFolderId}</span>
-        )}
-      </div>
+    <div className="admin-user-requests">
+      <CollapsibleSection title="Cart &amp; Purchases">
+        <section className="admin-settings">
+          <div className="admin-settings__field">
+            <label className="admin-users__filter">
+              <input
+                type="checkbox"
+                checked={cartEnabled}
+                disabled={cartSaving}
+                onChange={(e) => void handleCartToggle(e.target.checked)}
+              />
+              <span>Enable cart and purchase flow</span>
+            </label>
+            <p className="admin-settings__hint">
+              When disabled, the cart button and "Add to cart" icons are hidden for all users. Folder access requests still work normally.
+            </p>
+          </div>
+        </section>
+      </CollapsibleSection>
 
-      <div className="admin-settings__field">
-        <label className="admin-settings__label">Service Account</label>
-        {settings?.serviceAccountEmail
-          ? <code className="admin-settings__code">{settings.serviceAccountEmail}</code>
-          : <span className="admin-settings__current">Not configured</span>
-        }
-        <p className="admin-settings__hint">
-          The site reads photos using this service account. You must share each Drive folder with it as <strong>Viewer</strong>.
-        </p>
-        <ol className="admin-settings__steps">
-          <li>Open <a href="https://drive.google.com" target="_blank" rel="noreferrer">Google Drive</a> and navigate to your photos folder.</li>
-          <li>Right-click the folder → <strong>Share</strong>.</li>
-          <li>In the "Add people and groups" box, paste the email above.</li>
-          <li>Set the role to <strong>Viewer</strong>.</li>
-          <li>Uncheck "Notify people" (the service account has no inbox), then click <strong>Share</strong>.</li>
-          <li>Repeat for any sub-folders that aren't already inherited.</li>
-        </ol>
-      </div>
+      <CollapsibleSection title="Google Drive">
+        <section className="admin-settings">
+          <div className="admin-settings__field">
+            <label className="admin-settings__label">Folder</label>
+            <div className="admin-settings__row">
+              <input
+                className="admin-settings__input"
+                type="text"
+                placeholder="Paste folder URL or ID"
+                value={folderInput}
+                onChange={(e) => setFolderInput(e.target.value)}
+              />
+              <button
+                className="admin-view__btn admin-view__btn--primary"
+                onClick={() => void handleSave()}
+                disabled={saving || !folderInput.trim()}
+              >
+                {saving ? 'Saving…' : 'Save'}
+              </button>
+            </div>
+            {saveMsg && (
+              <span className={`admin-settings__msg ${saveMsg === 'Saved.' ? 'admin-settings__msg--ok' : 'admin-settings__msg--err'}`}>
+                {saveMsg}
+              </span>
+            )}
+            {settings?.driveFolderId && (
+              <span className="admin-settings__current">Current ID: {settings.driveFolderId}</span>
+            )}
+          </div>
 
-    </section>
+          <div className="admin-settings__field">
+            <label className="admin-settings__label">Service Account</label>
+            {settings?.serviceAccountEmail
+              ? <ServiceAccountEmail email={settings.serviceAccountEmail} />
+              : <span className="admin-settings__current">Not configured</span>
+            }
+            <p className="admin-settings__hint">
+              The site reads photos using this service account. You must share each Drive folder with it as <strong>Viewer</strong>.
+            </p>
+            <ol className="admin-settings__steps">
+              <li>Open <a href="https://drive.google.com" target="_blank" rel="noreferrer">Google Drive</a> and navigate to your photos folder.</li>
+              <li>Right-click the folder → <strong>Share</strong>.</li>
+              <li>In the "Add people and groups" box, paste the email above.</li>
+              <li>Set the role to <strong>Viewer</strong>.</li>
+              <li>Uncheck "Notify people" (the service account has no inbox), then click <strong>Share</strong>.</li>
+              <li>Repeat for any sub-folders that aren't already inherited.</li>
+            </ol>
+          </div>
+        </section>
+      </CollapsibleSection>
+    </div>
   );
 }
 
@@ -298,7 +379,7 @@ function TxRow({
   );
 }
 
-function TransactionsPanel() {
+function TransactionsPanel({ onCountChange }: { onCountChange?: (n: number) => void }) {
   const { user } = useAuth();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -309,11 +390,13 @@ function TransactionsPanel() {
   const refresh = useCallback(async () => {
     try {
       setError(null);
-      setTransactions(await fetchPendingTransactions());
+      const list = await fetchPendingTransactions();
+      setTransactions(list);
+      onCountChange?.(list.length);
     } catch {
       setError('Failed to load pending transactions.');
     }
-  }, []);
+  }, [onCountChange]);
 
   useEffect(() => {
     if (user?.isAdmin) void refresh();
@@ -323,7 +406,11 @@ function TransactionsPanel() {
     setBusyId(id);
     try {
       await approveTransaction(id);
-      setTransactions((prev) => prev.filter((t) => t.id !== id));
+      setTransactions((prev) => {
+        const next = prev.filter((t) => t.id !== id);
+        onCountChange?.(next.length);
+        return next;
+      });
     } catch {
       setError('Approval failed.');
     } finally {
@@ -335,7 +422,11 @@ function TransactionsPanel() {
     setBusyId(id);
     try {
       await rejectTransaction(id, rejectNote || undefined);
-      setTransactions((prev) => prev.filter((t) => t.id !== id));
+      setTransactions((prev) => {
+        const next = prev.filter((t) => t.id !== id);
+        onCountChange?.(next.length);
+        return next;
+      });
       setRejectingId(null);
       setRejectNote('');
     } catch {
@@ -642,7 +733,7 @@ function AdministratorsPanel() {
   );
 }
 
-function AccessRequestsPanel() {
+function AccessRequestsPanel({ onCountChange }: { onCountChange?: (n: number) => void }) {
   const { user } = useAuth();
   const [requests, setRequests] = useState<FolderAccessRequest[]>([]);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -653,11 +744,13 @@ function AccessRequestsPanel() {
   const refresh = useCallback(async () => {
     try {
       setError(null);
-      setRequests(await fetchPendingFolderAccessRequests());
+      const list = await fetchPendingFolderAccessRequests();
+      setRequests(list);
+      onCountChange?.(list.length);
     } catch {
       setError('Failed to load access requests.');
     }
-  }, []);
+  }, [onCountChange]);
 
   useEffect(() => {
     if (user?.isAdmin) void refresh();
@@ -667,7 +760,11 @@ function AccessRequestsPanel() {
     setBusyId(id);
     try {
       await approveFolderAccessRequest(id);
-      setRequests((prev) => prev.filter((r) => r.id !== id));
+      setRequests((prev) => {
+        const next = prev.filter((r) => r.id !== id);
+        onCountChange?.(next.length);
+        return next;
+      });
     } catch {
       setError('Approval failed.');
     } finally {
@@ -679,7 +776,11 @@ function AccessRequestsPanel() {
     setBusyId(id);
     try {
       await rejectFolderAccessRequest(id, rejectNote || undefined);
-      setRequests((prev) => prev.filter((r) => r.id !== id));
+      setRequests((prev) => {
+        const next = prev.filter((r) => r.id !== id);
+        onCountChange?.(next.length);
+        return next;
+      });
       setRejectingId(null);
       setRejectNote('');
     } catch {
@@ -757,11 +858,65 @@ function AccessRequestsPanel() {
   );
 }
 
-type Tab = 'transactions' | 'users' | 'gdrive' | 'profile' | 'administrators' | 'access-requests';
+function CollapsibleSection({ title, count, defaultOpen = true, children }: {
+  title: string;
+  count?: number;
+  defaultOpen?: boolean;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  const initializedRef = useRef(false);
+
+  // Once count resolves for the first time, collapse if empty.
+  // Never auto-collapse again — don't fold the section while the admin is working.
+  useEffect(() => {
+    if (!initializedRef.current && count !== undefined) {
+      initializedRef.current = true;
+      if (count === 0) setOpen(false);
+    }
+  }, [count]);
+
+  return (
+    <div className="admin-collapsible">
+      <button
+        className="admin-collapsible__header"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+      >
+        <span className={`admin-collapsible__chevron ${open ? 'admin-collapsible__chevron--open' : ''}`}>›</span>
+        <span className="admin-collapsible__title">{title}</span>
+        {count !== undefined && (
+          <span className={`admin-collapsible__badge ${count === 0 ? 'admin-collapsible__badge--empty' : ''}`}>
+            {count}
+          </span>
+        )}
+      </button>
+      {open && <div className="admin-collapsible__body">{children}</div>}
+    </div>
+  );
+}
+
+function UserRequestsPanel() {
+  const [txCount, setTxCount] = useState<number | undefined>(undefined);
+  const [accessCount, setAccessCount] = useState<number | undefined>(undefined);
+
+  return (
+    <div className="admin-user-requests">
+      <CollapsibleSection title="Pending Transactions" count={txCount}>
+        <TransactionsPanel onCountChange={setTxCount} />
+      </CollapsibleSection>
+      <CollapsibleSection title="Folder Access Requests" count={accessCount}>
+        <AccessRequestsPanel onCountChange={setAccessCount} />
+      </CollapsibleSection>
+    </div>
+  );
+}
+
+type Tab = 'user-requests' | 'users' | 'gdrive' | 'profile' | 'administrators';
 
 export function AdminView() {
   const { user, loading } = useAuth();
-  const [tab, setTab] = useState<Tab>('transactions');
+  const [tab, setTab] = useState<Tab>('user-requests');
 
   if (loading) return null;
   if (!user || !user.isAdmin) return <Navigate to="/" replace />;
@@ -770,10 +925,10 @@ export function AdminView() {
     <div className="admin-view">
       <div className="admin-tabs">
         <button
-          className={`admin-tabs__tab ${tab === 'transactions' ? 'admin-tabs__tab--active' : ''}`}
-          onClick={() => setTab('transactions')}
+          className={`admin-tabs__tab ${tab === 'user-requests' ? 'admin-tabs__tab--active' : ''}`}
+          onClick={() => setTab('user-requests')}
         >
-          Pending Transactions
+          User Requests
         </button>
         <button
           className={`admin-tabs__tab ${tab === 'users' ? 'admin-tabs__tab--active' : ''}`}
@@ -785,7 +940,7 @@ export function AdminView() {
           className={`admin-tabs__tab ${tab === 'gdrive' ? 'admin-tabs__tab--active' : ''}`}
           onClick={() => setTab('gdrive')}
         >
-          GDrive Folder
+          Settings
         </button>
         <button
           className={`admin-tabs__tab ${tab === 'profile' ? 'admin-tabs__tab--active' : ''}`}
@@ -799,20 +954,13 @@ export function AdminView() {
         >
           Administrators
         </button>
-        <button
-          className={`admin-tabs__tab ${tab === 'access-requests' ? 'admin-tabs__tab--active' : ''}`}
-          onClick={() => setTab('access-requests')}
-        >
-          Access Requests
-        </button>
       </div>
 
-      {tab === 'transactions' && <TransactionsPanel />}
+      {tab === 'user-requests' && <UserRequestsPanel />}
       {tab === 'users' && <UsersPanel />}
       {tab === 'gdrive' && <SettingsPanel />}
       {tab === 'profile' && <ProfilePanel />}
       {tab === 'administrators' && <AdministratorsPanel />}
-      {tab === 'access-requests' && <AccessRequestsPanel />}
     </div>
   );
 }

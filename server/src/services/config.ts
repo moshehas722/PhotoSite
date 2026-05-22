@@ -79,3 +79,16 @@ export async function getProfile(): Promise<SiteProfile> {
 export async function setProfile(profile: Partial<SiteProfile>): Promise<void> {
   await firestore.doc(CONFIG_DOC).set(profile, { merge: true });
 }
+
+export async function getCartEnabled(): Promise<boolean> {
+  try {
+    const doc = await firestore.doc(CONFIG_DOC).get();
+    const val = doc.data()?.cartEnabled;
+    // Default true — if never set, cart is on
+    return val === undefined ? true : Boolean(val);
+  } catch { return true; }
+}
+
+export async function setCartEnabled(enabled: boolean): Promise<void> {
+  await firestore.doc(CONFIG_DOC).set({ cartEnabled: enabled }, { merge: true });
+}

@@ -247,7 +247,7 @@
 
 .admin-settings__label {
   font-size: 0.85rem;
-  color: var(--text-label);
+  color: var(--text-2);
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -307,7 +307,7 @@
 
 .admin-settings__current {
   font-size: 0.8rem;
-  color: var(--text-dim);
+  color: var(--text-2);
   font-family: monospace;
 }
 
@@ -317,18 +317,37 @@
   border-radius: 4px;
   padding: 6px 10px;
   font-size: 0.85rem;
-  color: var(--text-label);
+  color: var(--text);
   word-break: break-all;
+}
+
+.admin-settings__sa-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-settings__copy-btn {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 4px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  transition: color 0.15s;
+}
+
+.admin-settings__copy-btn:hover {
+  color: var(--text-2);
 }
 
 .admin-settings__hint {
   font-size: 0.85rem;
-  color: var(--text-muted);
+  color: var(--text);
   line-height: 1.5;
-}
-
-.admin-settings__hint strong {
-  color: var(--text-3);
 }
 
 .admin-settings__steps {
@@ -338,12 +357,8 @@
   flex-direction: column;
   gap: 6px;
   font-size: 0.85rem;
-  color: var(--text-muted);
+  color: var(--text);
   line-height: 1.5;
-}
-
-.admin-settings__steps li strong {
-  color: var(--text-3);
 }
 
 .admin-settings__steps a {
@@ -418,6 +433,79 @@
   color: #7ab8f5;
 }
 
+/* ── Collapsible sections ──────────────────────────────────── */
+
+.admin-user-requests {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-collapsible {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.admin-collapsible__header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-surface);
+  border: none;
+  padding: 12px 16px;
+  cursor: pointer;
+  text-align: left;
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: background 0.15s;
+}
+
+.admin-collapsible__header:hover {
+  background: var(--bg-btn);
+}
+
+.admin-collapsible__chevron {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  transition: transform 0.2s;
+  display: inline-block;
+  line-height: 1;
+}
+
+.admin-collapsible__chevron--open {
+  transform: rotate(90deg);
+}
+
+.admin-collapsible__body {
+  padding: 16px;
+  border-top: 1px solid var(--border);
+  color: var(--text);
+}
+
+.admin-collapsible__badge {
+  margin-left: auto;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: 11px;
+  background: var(--accent, #4f8ef7);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.admin-collapsible__badge--empty {
+  background: var(--bg-btn);
+  color: var(--text-muted);
+}
+
 /* ── Users listing ─────────────────────────────────────────── */
 
 .admin-users__intro {
@@ -436,7 +524,7 @@
   gap: 8px;
   cursor: pointer;
   font-size: 0.9rem;
-  color: var(--text-2);
+  color: var(--text);
   user-select: none;
 }
 

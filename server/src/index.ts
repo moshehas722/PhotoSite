@@ -11,7 +11,7 @@ import { authRouter } from './routes/auth';
 import { transactionsRouter, handleCancelTransactionBody } from './routes/transactions';
 import { adminRouter } from './routes/admin';
 import { folderAccessRouter } from './routes/folderAccess';
-import { getAboutContent, getProfile } from './services/config';
+import { getAboutContent, getProfile, getCartEnabled } from './services/config';
 import { FirestoreSessionStore } from './services/sessionStore';
 import { requireAdmin } from './services/admin';
 import { listUsersByLoginCount } from './services/userLoginStats';
@@ -113,6 +113,16 @@ app.get('/api/about', async (_req, res) => {
   } catch (err) {
     console.error('Failed to get about content:', err);
     res.status(500).json({ error: 'Failed to get about content' });
+  }
+});
+
+app.get('/api/config', async (_req, res) => {
+  try {
+    const cartEnabled = await getCartEnabled();
+    res.json({ cartEnabled });
+  } catch (err) {
+    console.error('Failed to get config:', err);
+    res.status(500).json({ error: 'Failed to get config' });
   }
 });
 

@@ -11,6 +11,7 @@ import {
   getDriveFolderId, setDriveFolderId, getAboutContent, setAboutContent,
   getAdminEmailList, addAdminEmail, removeAdminEmail,
   getProfile, setProfile,
+  getCartEnabled, setCartEnabled,
 } from '../services/config';
 import { setUserFullAccess } from '../services/userLoginStats';
 import {
@@ -63,6 +64,30 @@ adminRouter.post('/transactions/:id/reject', async (req: Request, res: Response)
   } catch (err) {
     console.error('Failed to reject transaction:', err);
     res.status(500).json({ error: 'Failed to reject transaction' });
+  }
+});
+
+adminRouter.get('/cart-enabled', async (_req: Request, res: Response) => {
+  try {
+    res.json({ cartEnabled: await getCartEnabled() });
+  } catch (err) {
+    console.error('Failed to get cart setting:', err);
+    res.status(500).json({ error: 'Failed to get cart setting' });
+  }
+});
+
+adminRouter.put('/cart-enabled', async (req: Request, res: Response) => {
+  try {
+    const { cartEnabled } = (req.body ?? {}) as { cartEnabled?: boolean };
+    if (typeof cartEnabled !== 'boolean') {
+      res.status(400).json({ error: 'cartEnabled must be a boolean' });
+      return;
+    }
+    await setCartEnabled(cartEnabled);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Failed to set cart setting:', err);
+    res.status(500).json({ error: 'Failed to set cart setting' });
   }
 });
 

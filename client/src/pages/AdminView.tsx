@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import {
@@ -19,6 +19,8 @@ import {
   fetchPendingFolderAccessRequests,
   approveFolderAccessRequest,
   rejectFolderAccessRequest,
+  fetchUserFolderAccess,
+  revokeUserFolderAccess,
   fetchCartEnabled,
   saveCartEnabled,
   type AdminSettings,
@@ -479,6 +481,10 @@ function UsersPanel() {
   const [error, setError] = useState<string | null>(null);
   const [busySub, setBusySub] = useState<string | null>(null);
   const [fullAccessOnly, setFullAccessOnly] = useState(false);
+  const [selectedSub, setSelectedSub] = useState<string | null>(null);
+  const [folderAccesses, setFolderAccesses] = useState<FolderAccessRequest[] | null>(null);
+  const [folderAccessError, setFolderAccessError] = useState<string | null>(null);
+  const [revokingId, setRevokingId] = useState<string | null>(null);
 
   const displayedUsers = useMemo(
     () => (fullAccessOnly ? users.filter((u) => u.fullAccess) : users),
@@ -497,9 +503,16 @@ function UsersPanel() {
     }
   }, []);
 
+  useEffect(() => { void load(); }, [load]);
+
   useEffect(() => {
-    void load();
-  }, [load]);
+    if (!selectedSub) { setFolderAccesses(null); setFolderAccessError(null); return; }
+    setFolderAccesses(null);
+    setFolderAccessError(null);
+    fetchUserFolderAccess(selectedSub)
+      .then(setFolderAccesses)
+      .catch(() => setFolderAccessError('Failed to load folder access.'));
+  }, [selectedSub]);
 
   const handleFullAccessToggle = async (userSub: string, next: boolean) => {
     setBusySub(userSub);
@@ -516,6 +529,22 @@ function UsersPanel() {
       setBusySub(null);
     }
   };
+
+  const handleRevoke = async (accessId: string) => {
+    setRevokingId(accessId);
+    setFolderAccessError(null);
+    try {
+      await revokeUserFolderAccess(accessId);
+      setFolderAccesses((prev) => prev ? prev.filter((a) => a.id !== accessId) : prev);
+    } catch {
+      setFolderAccessError('Failed to revoke access.');
+    } finally {
+      setRevokingId(null);
+    }
+  };
+
+  const toggleSelected = (sub: string) =>
+    setSelectedSub((prev) => (prev === sub ? null : sub));
 
   return (
     <section className="admin-users">
@@ -549,68 +578,80 @@ function UsersPanel() {
           <table className="admin-users__table">
             <thead>
               <tr>
-                <th scope="col" className="admin-users__th admin-users__th--user">
-                  User
-                </th>
-                <th scope="col" className="admin-users__col-hide-mobile">
-                  Email
-                </th>
-                <th
-                  scope="col"
-                  className="admin-users__th--numeric admin-users__col-hide-mobile"
-                >
-                  Logins
-                </th>
-                <th scope="col" className="admin-users__col-hide-mobile">
-                  Last login
-                </th>
-                <th scope="col" className="admin-users__th--access">
-                  Full access
-                </th>
+                <th scope="col" className="admin-users__th admin-users__th--user">User</th>
+                <th scope="col" className="admin-users__col-hide-mobile">Email</th>
+                <th scope="col" className="admin-users__th--numeric admin-users__col-hide-mobile">Logins</th>
+                <th scope="col" className="admin-users__col-hide-mobile">Last login</th>
+                <th scope="col" className="admin-users__th--access">Full access</th>
               </tr>
             </thead>
             <tbody>
               {displayedUsers.map((u) => (
-                <tr key={u.userSub}>
-                  <td>
-                    <div className="admin-users__cell-user">
-                      {u.picture ? (
-                        <img
-                          src={u.picture}
-                          alt=""
-                          className="admin-users__avatar"
-                          loading="lazy"
-                          referrerPolicy="no-referrer"
+                <React.Fragment key={u.userSub}>
+                  <tr
+                    className={`admin-users__row ${selectedSub === u.userSub ? 'admin-users__row--selected' : ''}`}
+                    onClick={() => toggleSelected(u.userSub)}
+                  >
+                    <td>
+                      <div className="admin-users__cell-user">
+                        <span className={`admin-users__expand ${selectedSub === u.userSub ? 'admin-users__expand--open' : ''}`}>›</span>
+                        {u.picture ? (
+                          <img src={u.picture} alt="" className="admin-users__avatar" loading="lazy" referrerPolicy="no-referrer" />
+                        ) : (
+                          <span className="admin-users__avatar admin-users__avatar--placeholder" aria-hidden />
+                        )}
+                        <span className="admin-users__name">{u.name || '—'}</span>
+                      </div>
+                    </td>
+                    <td className="admin-users__email admin-users__col-hide-mobile">{u.email || '—'}</td>
+                    <td className="admin-users__numeric admin-users__col-hide-mobile">{u.loginCount}</td>
+                    <td className="admin-users__muted admin-users__col-hide-mobile">{formatLoginTime(u.lastLoginAt)}</td>
+                    <td className="admin-users__access-cell" onClick={(e) => e.stopPropagation()}>
+                      <label className="admin-users__access-label">
+                        <input
+                          type="checkbox"
+                          checked={u.fullAccess}
+                          disabled={busySub === u.userSub}
+                          onChange={(e) => void handleFullAccessToggle(u.userSub, e.target.checked)}
+                          aria-label={`Full access for ${u.email || u.name}`}
                         />
-                      ) : (
-                        <span className="admin-users__avatar admin-users__avatar--placeholder" aria-hidden />
-                      )}
-                      <span className="admin-users__name">{u.name || '—'}</span>
-                    </div>
-                  </td>
-                  <td className="admin-users__email admin-users__col-hide-mobile">
-                    {u.email || '—'}
-                  </td>
-                  <td className="admin-users__numeric admin-users__col-hide-mobile">
-                    {u.loginCount}
-                  </td>
-                  <td className="admin-users__muted admin-users__col-hide-mobile">
-                    {formatLoginTime(u.lastLoginAt)}
-                  </td>
-                  <td className="admin-users__access-cell">
-                    <label className="admin-users__access-label">
-                      <input
-                        type="checkbox"
-                        checked={u.fullAccess}
-                        disabled={busySub === u.userSub}
-                        onChange={(e) =>
-                          void handleFullAccessToggle(u.userSub, e.target.checked)
-                        }
-                        aria-label={`Full access for ${u.email || u.name}`}
-                      />
-                    </label>
-                  </td>
-                </tr>
+                      </label>
+                    </td>
+                  </tr>
+                  {selectedSub === u.userSub && (
+                    <tr className="admin-users__detail-row">
+                      <td colSpan={5}>
+                        <div className="admin-users__folder-access">
+                          <span className="admin-users__folder-access-label">Folder access</span>
+                          {folderAccessError && <div className="admin-view__error">{folderAccessError}</div>}
+                          {folderAccesses === null && !folderAccessError && (
+                            <span className="admin-view__empty">Loading…</span>
+                          )}
+                          {folderAccesses !== null && folderAccesses.length === 0 && (
+                            <span className="admin-view__empty">No folder access granted.</span>
+                          )}
+                          {folderAccesses && folderAccesses.map((a) => (
+                            <div key={a.id} className="admin-users__folder-row">
+                              <span className="admin-users__folder-name">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden style={{ flexShrink: 0 }}>
+                                  <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                                </svg>
+                                {a.folderName || a.folderId}
+                              </span>
+                              <button
+                                className="admin-view__btn admin-view__btn--danger admin-view__btn--sm"
+                                disabled={revokingId === a.id}
+                                onClick={(e) => { e.stopPropagation(); void handleRevoke(a.id); }}
+                              >
+                                {revokingId === a.id ? 'Revoking…' : 'Revoke'}
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
               ))}
             </tbody>
           </table>

@@ -101,6 +101,21 @@ export async function listPendingFolderAccessRequests(): Promise<FolderAccessReq
   return docs;
 }
 
+export async function listApprovedFolderAccessForUser(userSub: string): Promise<FolderAccessRequest[]> {
+  const snap = await firestore
+    .collection(COLLECTION)
+    .where('userSub', '==', userSub)
+    .where('status', '==', 'approved')
+    .get();
+  const docs = snap.docs.map((d) => toRequest(d.id, d.data()));
+  docs.sort((a, b) => (b.decidedAt ?? 0) - (a.decidedAt ?? 0));
+  return docs;
+}
+
+export async function revokeFolderAccess(id: string): Promise<void> {
+  await firestore.collection(COLLECTION).doc(id).delete();
+}
+
 export async function hasFolderAccess(userSub: string, folderId: string): Promise<boolean> {
   const snap = await firestore
     .collection(COLLECTION)

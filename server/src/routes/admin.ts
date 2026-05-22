@@ -16,6 +16,8 @@ import {
 import { setUserFullAccess } from '../services/userLoginStats';
 import {
   listPendingFolderAccessRequests,
+  listApprovedFolderAccessForUser,
+  revokeFolderAccess,
   approveFolderAccessRequest,
   rejectFolderAccessRequest,
 } from '../services/folderAccess';
@@ -204,6 +206,26 @@ adminRouter.put('/profile', async (req: Request, res: Response) => {
   } catch (err) {
     console.error('Failed to save profile:', err);
     res.status(500).json({ error: 'Failed to save profile' });
+  }
+});
+
+adminRouter.get('/users/:sub/folder-access', async (req: Request, res: Response) => {
+  try {
+    const accesses = await listApprovedFolderAccessForUser(req.params.sub);
+    res.json({ accesses });
+  } catch (err) {
+    console.error('Failed to list user folder access:', err);
+    res.status(500).json({ error: 'Failed to list user folder access' });
+  }
+});
+
+adminRouter.delete('/folder-access/:id', async (req: Request, res: Response) => {
+  try {
+    await revokeFolderAccess(req.params.id);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Failed to revoke folder access:', err);
+    res.status(500).json({ error: 'Failed to revoke folder access' });
   }
 });
 

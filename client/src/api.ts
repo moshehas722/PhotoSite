@@ -232,6 +232,21 @@ export async function rejectFolderAccessRequest(id: string, note?: string): Prom
   if (!res.ok) throw new Error('Reject failed');
 }
 
+export async function fetchUserFolderAccess(userSub: string): Promise<FolderAccessRequest[]> {
+  const res = await fetch(`/api/admin/users/${encodeURIComponent(userSub)}/folder-access`, { credentials: 'include' });
+  if (!res.ok) throw new Error('Failed to fetch folder access');
+  const data = (await res.json()) as { accesses: FolderAccessRequest[] };
+  return data.accesses;
+}
+
+export async function revokeUserFolderAccess(id: string): Promise<void> {
+  const res = await fetch(`/api/admin/folder-access/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  });
+  if (!res.ok) throw new Error('Failed to revoke access');
+}
+
 export async function fetchCartEnabled(): Promise<boolean> {
   const res = await fetch('/api/admin/cart-enabled', { credentials: 'include' });
   if (!res.ok) return true;

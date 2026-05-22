@@ -8,6 +8,7 @@ import { Sidebar } from './components/Sidebar';
 import { FolderView } from './components/FolderView';
 import { AuthProvider, useAuth } from './auth/AuthContext';
 import { UserMenu } from './auth/UserMenu';
+import { LoginScreen } from './auth/LoginScreen';
 import { CartProvider } from './cart/CartContext';
 import { CartButton } from './cart/CartButton';
 import { CartDrawer } from './cart/CartDrawer';
@@ -48,11 +49,19 @@ function HeaderCart() {
   );
 }
 
+function AppGate({ children }: { children: React.ReactNode }) {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  if (!user) return <LoginScreen />;
+  return <>{children}</>;
+}
+
 function App() {
   return (
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <ThemeProvider>
       <AuthProvider>
+        <AppGate>
         <SiteConfigProvider>
         <TransactionsProvider>
           <FolderAccessProvider>
@@ -95,6 +104,7 @@ function App() {
           </FolderAccessProvider>
         </TransactionsProvider>
         </SiteConfigProvider>
+        </AppGate>
       </AuthProvider>
       </ThemeProvider>
     </GoogleOAuthProvider>

@@ -19,6 +19,9 @@ export function FolderTreeNode({ folderId, name, depth, defaultExpanded = false,
   const activeId = currentId ?? 'root';
   const { registerChildren } = useFolderHierarchy();
 
+  const isActive = folderId === activeId;
+  const linkTo = folderId === 'root' ? '/' : `/folder/${folderId}`;
+
   const [expanded, setExpanded] = useState(defaultExpanded);
   const [children, setChildren] = useState<Folder[] | null>(null);
   const [loading, setLoading] = useState(false);
@@ -44,15 +47,26 @@ export function FolderTreeNode({ folderId, name, depth, defaultExpanded = false,
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Sync expansion with the active route:
+  // - active folder expands and loads its children
+  // - non-active, non-default-expanded folders collapse
+  useEffect(() => {
+    if (defaultExpanded) return; // root always stays expanded
+    if (isActive) {
+      setExpanded(true);
+      void loadChildren();
+    } else {
+      setExpanded(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isActive]);
+
   const toggle = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     if (!expanded) void loadChildren();
     setExpanded(!expanded);
   };
-
-  const isActive = folderId === activeId;
-  const linkTo = folderId === 'root' ? '/' : `/folder/${folderId}`;
 
   return (
     <div className="tree-node">

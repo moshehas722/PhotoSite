@@ -3,7 +3,6 @@ import { useParams, Link } from 'react-router-dom';
 import { fetchFolderContents } from '../api';
 import type { FolderContents } from '../types';
 import { Gallery } from './Gallery';
-import { useFolderHierarchy } from '../context/FolderHierarchyContext';
 import { useFolderAccess } from '../context/FolderAccessContext';
 import { useAuth } from '../auth/AuthContext';
 import './FolderView.css';
@@ -11,8 +10,6 @@ import './FolderView.css';
 export function FolderView() {
   const { folderId } = useParams<{ folderId?: string }>();
   const targetId = folderId ?? 'root';
-  const { getParent } = useFolderHierarchy();
-  const parent = targetId !== 'root' ? getParent(targetId) : null;
   const { user } = useAuth();
   const { approvedFolderIds, pendingFolderIds, requestAccess, refresh } = useFolderAccess();
   const [requesting, setRequesting] = useState(false);
@@ -59,12 +56,12 @@ export function FolderView() {
     <div className="folder-view">
       <div className="folder-view__header">
         <div className="folder-view__breadcrumb">
-          {parent && (
+          {!isRoot && contents.parentId && contents.parentName && (
             <Link
-              to={parent.parentId === 'root' ? '/' : `/folder/${parent.parentId}`}
+              to={contents.parentId === 'root' ? '/' : `/folder/${contents.parentId}`}
               className="folder-view__parent-link"
             >
-              {parent.parentName}
+              {contents.parentName}
             </Link>
           )}
         </div>

@@ -64,6 +64,9 @@ body {
 }
 
 .app-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
   padding: 12px 24px;
   display: flex;
   justify-content: space-between;

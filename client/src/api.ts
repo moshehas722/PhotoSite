@@ -1,4 +1,4 @@
-import type { FolderContents, RecentFolder } from './types';
+import type { FolderContents, FolderTreeNode, RecentFolder } from './types';
 import type { Transaction } from './transactions/TransactionsContext';
 
 export interface FolderAccessRequest {
@@ -19,6 +19,12 @@ export async function fetchFolderContents(folderId: string): Promise<FolderConte
   const res = await fetch(`/api/folders/${encodeURIComponent(folderId)}`);
   if (!res.ok) throw new Error(`Failed to fetch folder: ${res.statusText}`);
   return res.json();
+}
+
+export async function fetchFolderTree(): Promise<FolderTreeNode> {
+  const res = await fetch('/api/folders/tree');
+  if (!res.ok) throw new Error('Failed to fetch folder tree');
+  return res.json() as Promise<FolderTreeNode>;
 }
 
 export async function fetchRecentFolders(): Promise<RecentFolder[]> {

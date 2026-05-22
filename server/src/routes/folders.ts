@@ -1,13 +1,22 @@
 import { Router, Request, Response } from 'express';
-import { listFolderContents, listRecentFolders } from '../services/googleDrive';
+import { listFolderContents, listRecentFolders, buildFolderTree } from '../services/googleDrive';
 import { getDriveFolderId } from '../services/config';
 
 export const foldersRouter = Router();
 
-const resolveFolderId = async (paramId: string): Promise<string> => {
-  if (paramId === 'root') return getDriveFolderId();
-  return paramId;
-};
+
+foldersRouter.get('/tree', async (_req: Request, res: Response) => {
+  try {
+    const rootId = await getDriveFolderId();
+    const tree = await buildFolderTree(rootId);
+    // Use the 'root' alias for the root node to match URL convention
+    tree.id = 'root';
+    res.json(tree);
+  } catch (err) {
+    console.error('Failed to build folder tree:', err);
+    res.status(500).json({ error: 'Failed to build folder tree' });
+  }
+});
 
 foldersRouter.get('/recent', async (_req: Request, res: Response) => {
   try {
@@ -22,14 +31,18 @@ foldersRouter.get('/recent', async (_req: Request, res: Response) => {
 
 foldersRouter.get('/:id', async (req: Request, res: Response) => {
   try {
-    const folderId = await resolveFolderId(req.params.id);
+    const rootId = await getDriveFolderId();
+    const folderId = req.params.id === 'root' ? rootId : req.params.id;
     const contents = await listFolderContents(folderId);
-    // Strip thumbnailLink before sending (frontend uses /api/photos/:id/thumbnail)
+    // Normalise parent: if the real Drive root is the parent, expose it as 'root'
+    const parentId = contents.parentId === rootId ? 'root' : contents.parentId;
     res.json({
       id: req.params.id === 'root' ? 'root' : contents.id,
       name: contents.name,
       photos: contents.photos.map(({ id, name, mimeType }) => ({ id, name, mimeType })),
       folders: contents.folders,
+      parentId,
+      parentName: contents.parentName,
     });
   } catch (err) {
     console.error('Failed to list folder contents:', err);

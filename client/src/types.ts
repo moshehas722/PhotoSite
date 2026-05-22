@@ -15,11 +15,18 @@ export interface RecentFolder {
   createdTime: string;
 }
 
+export interface FolderTreeNode {
+  id: string;
+  name: string;
+  children: FolderTreeNode[];
+}
+
 export interface FolderContents {
   id: string;
   name: string;
   photos: Photo[];
   folders: Folder[];
+  /** 'root' if the parent is the Drive root, otherwise the real folder ID */
   parentId?: string;
   parentName?: string;
 }

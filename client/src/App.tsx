@@ -4,6 +4,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import { ThemeProvider } from './theme/ThemeContext';
 import { ThemeToggle } from './theme/ThemeToggle';
 import './App.css';
+import { Sidebar } from './components/Sidebar';
 import { FolderView } from './components/FolderView';
 import { AuthProvider, useAuth } from './auth/AuthContext';
 import { UserMenu } from './auth/UserMenu';
@@ -85,6 +86,7 @@ function App() {
                   </div>
                 </header>
                 <div className="app-body">
+                  <Sidebar />
                   <main className="app-main">
                     <Routes>
                       <Route path="/" element={<FolderView />} />

@@ -153,13 +153,6 @@ body {
   min-width: 0;
 }
 
-.folder-view__title {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  font-size: 35px;
-  font-weight: 300;
-  margin-bottom: 20px;
-  color: var(--text);
-}
 
 @media (max-width: 768px) {
   .app-header {

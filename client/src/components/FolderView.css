@@ -2,32 +2,53 @@
   margin-bottom: 8px;
 }
 
-.folder-view__breadcrumb {
-  margin-bottom: 4px;
+.folder-view__breadcrumbs {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0;
+  margin-bottom: 2px;
 }
 
-.folder-view__parent-link {
-  display: inline-block;
+.folder-view__breadcrumb-item {
+  display: inline-flex;
+  align-items: center;
+}
+
+.folder-view__breadcrumb-link {
   color: var(--text-3);
   text-decoration: none;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 300;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  transition: color 0.15s ease;
+  transition: color 0.15s;
+  display: inline-flex;
+  align-items: center;
 }
 
-.folder-view__parent-link:hover {
+.folder-view__breadcrumb-link svg {
+  width: 14px;
+  height: 14px;
+}
+
+.folder-view__breadcrumb-link:hover {
   color: var(--text);
 }
 
-.folder-view__title {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  font-size: 35px;
-  font-weight: 300;
-  margin-bottom: 0;
-  padding-left: 12px;
-  color: var(--text);
+.folder-view__breadcrumb-sep {
+  color: var(--text-muted);
+  font-size: 13px;
+  margin: 0 5px;
+  user-select: none;
 }
+
+.folder-view__breadcrumb-current {
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
 
 .folder-view__subfolders {
   display: flex;
@@ -50,12 +71,6 @@
   color: var(--text);
 }
 
-.folder-view__title-row {
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
-  margin-bottom: 4px;
-}
 
 .subfolder-grid {
   display: grid;

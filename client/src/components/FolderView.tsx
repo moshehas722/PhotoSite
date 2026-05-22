@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { fetchFolderContents } from '../api';
 import type { FolderContents } from '../types';
 import { Gallery } from './Gallery';
 import { useFolderAccess } from '../context/FolderAccessContext';
+import { useFolderHierarchy } from '../context/FolderHierarchyContext';
 import { useAuth } from '../auth/AuthContext';
+import { HomeIcon } from '../icons/HomeIcon';
 import './FolderView.css';
 
 export function FolderView() {
@@ -31,10 +33,36 @@ export function FolderView() {
       .finally(() => setLoading(false));
   }, [targetId]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const { getParent } = useFolderHierarchy();
+
   const isRoot = targetId === 'root';
   const approved = approvedFolderIds.has(targetId);
   const pending = pendingFolderIds.has(targetId);
   const showAccessBtn = user && !user.fullAccess && !isRoot && !approved;
+
+  type Crumb = { id: string | null; name: string };
+  const crumbs = useMemo<Crumb[]>(() => {
+    if (isRoot || !contents) return [{ id: null, name: 'Home' }];
+    const result: Crumb[] = [{ id: null, name: contents.name }];
+    let id = targetId;
+    let usedApiFallback = false;
+    for (let depth = 0; depth < 8; depth++) {
+      const parent = getParent(id);
+      if (parent) {
+        if (parent.parentId === 'root') { result.unshift({ id: 'root', name: 'Home' }); break; }
+        result.unshift({ id: parent.parentId, name: parent.parentName });
+        id = parent.parentId;
+      } else if (!usedApiFallback && id === targetId && contents.parentId) {
+        usedApiFallback = true;
+        if (contents.parentId === 'root') { result.unshift({ id: 'root', name: 'Home' }); break; }
+        result.unshift({ id: contents.parentId, name: contents.parentName ?? '' });
+        id = contents.parentId;
+      } else {
+        result.unshift({ id: 'root', name: 'Home' }); break;
+      }
+    }
+    return result;
+  }, [isRoot, targetId, contents, getParent]);
 
   const handleRequestAccess = async () => {
     if (requesting || pending || !contents) return;
@@ -55,19 +83,26 @@ export function FolderView() {
   return (
     <div className="folder-view">
       <div className="folder-view__header">
-        <div className="folder-view__breadcrumb">
-          {!isRoot && contents.parentId && contents.parentName && (
-            <Link
-              to={contents.parentId === 'root' ? '/' : `/folder/${contents.parentId}`}
-              className="folder-view__parent-link"
-            >
-              {contents.parentName}
-            </Link>
-          )}
-        </div>
-        <div className="folder-view__title-row">
-          <h2 className="folder-view__title">{isRoot ? 'Home' : contents.name}</h2>
-        </div>
+        <nav className="folder-view__breadcrumbs" aria-label="breadcrumb">
+          {crumbs.map((crumb, i) => (
+            <span key={crumb.id ?? 'current'} className="folder-view__breadcrumb-item">
+              {i > 0 && <span className="folder-view__breadcrumb-sep">›</span>}
+              {crumb.id === null ? (
+                <span className="folder-view__breadcrumb-current">
+                  {isRoot ? <HomeIcon /> : crumb.name}
+                </span>
+              ) : (
+                <Link
+                  to={crumb.id === 'root' ? '/' : `/folder/${crumb.id}`}
+                  className="folder-view__breadcrumb-link"
+                  aria-label={crumb.id === 'root' ? 'Home' : undefined}
+                >
+                  {crumb.id === 'root' ? <HomeIcon /> : crumb.name}
+                </Link>
+              )}
+            </span>
+          ))}
+        </nav>
         {showAccessBtn && (
           pending || requesting ? (
             <span className="folder-view__access-note folder-view__access-note--pending">

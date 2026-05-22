@@ -8,11 +8,10 @@ export interface FolderAccessRequest {
   userName: string;
   folderId: string;
   folderName: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: 'pending' | 'approved';
   createdAt: number;
   decidedAt?: number;
   decidedByEmail?: string;
-  rejectionNote?: string;
 }
 
 export async function fetchFolderContents(folderId: string): Promise<FolderContents> {
@@ -222,12 +221,10 @@ export async function approveFolderAccessRequest(id: string): Promise<void> {
   if (!res.ok) throw new Error('Approve failed');
 }
 
-export async function rejectFolderAccessRequest(id: string, note?: string): Promise<void> {
+export async function rejectFolderAccessRequest(id: string): Promise<void> {
   const res = await fetch(`/api/admin/folder-access/${id}/reject`, {
     method: 'POST',
     credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ note }),
   });
   if (!res.ok) throw new Error('Reject failed');
 }

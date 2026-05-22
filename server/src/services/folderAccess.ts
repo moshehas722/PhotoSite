@@ -142,16 +142,6 @@ export async function approveFolderAccessRequest(id: string, adminEmail: string)
   }
 }
 
-export async function rejectFolderAccessRequest(
-  id: string,
-  adminEmail: string,
-  note?: string
-): Promise<void> {
-  const update: Record<string, unknown> = {
-    status: 'rejected' as FolderAccessStatus,
-    decidedAt: FieldValue.serverTimestamp(),
-    decidedByEmail: adminEmail,
-  };
-  if (note) update.rejectionNote = note;
-  await firestore.collection(COLLECTION).doc(id).update(update);
+export async function rejectFolderAccessRequest(id: string): Promise<void> {
+  await firestore.collection(COLLECTION).doc(id).delete();
 }

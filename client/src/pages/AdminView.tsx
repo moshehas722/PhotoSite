@@ -779,7 +779,6 @@ function AccessRequestsPanel({ onCountChange }: { onCountChange?: (n: number) =>
   const [requests, setRequests] = useState<FolderAccessRequest[]>([]);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [rejectingId, setRejectingId] = useState<string | null>(null);
-  const [rejectNote, setRejectNote] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
@@ -816,14 +815,13 @@ function AccessRequestsPanel({ onCountChange }: { onCountChange?: (n: number) =>
   const handleConfirmReject = async (id: string) => {
     setBusyId(id);
     try {
-      await rejectFolderAccessRequest(id, rejectNote || undefined);
+      await rejectFolderAccessRequest(id);
       setRequests((prev) => {
         const next = prev.filter((r) => r.id !== id);
         onCountChange?.(next.length);
         return next;
       });
       setRejectingId(null);
-      setRejectNote('');
     } catch {
       setError('Rejection failed.');
     } finally {
@@ -860,7 +858,7 @@ function AccessRequestsPanel({ onCountChange }: { onCountChange?: (n: number) =>
                       <button
                         className="admin-view__btn admin-view__btn--sm"
                         disabled={busy}
-                        onClick={() => { setRejectingId(req.id); setRejectNote(''); }}
+                        onClick={() => setRejectingId(req.id)}
                       >
                         Reject
                       </button>
@@ -869,22 +867,16 @@ function AccessRequestsPanel({ onCountChange }: { onCountChange?: (n: number) =>
                 </div>
                 {rejecting && (
                   <div className="tx-row__reject">
-                    <input
-                      type="text"
-                      placeholder="Reason (optional)"
-                      value={rejectNote}
-                      onChange={(e) => setRejectNote(e.target.value)}
-                    />
                     <button
                       className="admin-view__btn admin-view__btn--danger admin-view__btn--sm"
                       disabled={busy}
                       onClick={() => void handleConfirmReject(req.id)}
                     >
-                      Confirm
+                      Confirm reject
                     </button>
                     <button
                       className="admin-view__btn admin-view__btn--sm"
-                      onClick={() => { setRejectingId(null); setRejectNote(''); }}
+                      onClick={() => setRejectingId(null)}
                     >
                       Cancel
                     </button>

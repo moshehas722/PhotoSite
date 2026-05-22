@@ -251,8 +251,7 @@ adminRouter.post('/folder-access/:id/approve', async (req: Request, res: Respons
 
 adminRouter.post('/folder-access/:id/reject', async (req: Request, res: Response) => {
   try {
-    const { note } = (req.body ?? {}) as { note?: string };
-    await rejectFolderAccessRequest(req.params.id, req.session.user!.email, note);
+    await rejectFolderAccessRequest(req.params.id);
     res.json({ ok: true });
   } catch (err) {
     console.error('Failed to reject folder access request:', err);

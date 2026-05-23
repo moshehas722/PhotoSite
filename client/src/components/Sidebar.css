@@ -127,6 +127,10 @@
   color: #c8922a;
 }
 
+.tree-node__lock--approved {
+  color: #3a9e5f;
+}
+
 .tree-node__status {
   font-size: 0.8rem;
   color: var(--text-dim);

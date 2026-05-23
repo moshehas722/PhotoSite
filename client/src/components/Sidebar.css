@@ -115,6 +115,18 @@
 }
 
 
+.tree-node__lock {
+  width: 11px;
+  height: 11px;
+  flex-shrink: 0;
+  color: var(--text-dim);
+  margin-left: auto;
+}
+
+.tree-node__lock--pending {
+  color: #c8922a;
+}
+
 .tree-node__status {
   font-size: 0.8rem;
   color: var(--text-dim);

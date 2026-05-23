@@ -15,7 +15,6 @@
     "express-session": "^1.19.0",
     "google-auth-library": "^10.6.2",
     "googleapis": "^140.0.1",
-    "resend": "^6.12.3"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",

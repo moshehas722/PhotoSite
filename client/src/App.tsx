@@ -50,9 +50,9 @@ function HeaderCart() {
 }
 
 function AppGate({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
+  const { user, loading, guestMode } = useAuth();
   if (loading) return null;
-  if (!user) return <LoginScreen />;
+  if (!user && !guestMode) return <LoginScreen />;
   return <>{children}</>;
 }
 

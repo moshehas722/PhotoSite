@@ -12,7 +12,7 @@ import './FolderView.css';
 export function FolderView() {
   const { folderId } = useParams<{ folderId?: string }>();
   const targetId = folderId ?? 'root';
-  const { user } = useAuth();
+  const { user, guestMode, exitGuestMode } = useAuth();
   const { approvedFolderIds, pendingFolderIds, requestAccess, refresh } = useFolderAccess();
   const [requesting, setRequesting] = useState(false);
 
@@ -103,7 +103,20 @@ export function FolderView() {
             </span>
           ))}
         </nav>
-        {showAccessBtn && (
+        {guestMode && !isRoot && (
+          <button
+            className="folder-view__access-note folder-view__access-note--btn"
+            onClick={exitGuestMode}
+            title="Sign in to request hi-res access"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+            Login to request hi-res
+          </button>
+        )}
+        {!guestMode && showAccessBtn && (
           pending || requesting ? (
             <span className="folder-view__access-note folder-view__access-note--pending">
               <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>

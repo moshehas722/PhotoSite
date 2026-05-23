@@ -4,7 +4,7 @@ import { ThemeToggle } from '../theme/ThemeToggle';
 import './LoginScreen.css';
 
 export function LoginScreen() {
-  const { login } = useAuth();
+  const { login, enterGuestMode } = useAuth();
 
   return (
     <div className="login-screen">
@@ -21,6 +21,9 @@ export function LoginScreen() {
           }}
           onError={() => console.warn('Google login failed')}
         />
+        <button className="login-screen__guest-btn" onClick={enterGuestMode}>
+          Continue as guest
+        </button>
       </div>
     </div>
   );

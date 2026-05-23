@@ -16,11 +16,11 @@ interface Props {
 export function FolderAccordionNode({ node, activePath, activeId, depth, onSelect }: Props) {
   const isActive = node.id === activeId;
   const hasChildren = node.children.length > 0;
-  const { user } = useAuth();
+  const { user, guestMode } = useAuth();
   const { approvedFolderIds, pendingFolderIds } = useFolderAccess();
-  const isApproved = approvedFolderIds.has(node.id);
-  const isPending = !isApproved && pendingFolderIds.has(node.id);
-  const isLocked = !!user && !user.fullAccess && !isApproved && !isPending;
+  const isApproved = !guestMode && approvedFolderIds.has(node.id);
+  const isPending = !guestMode && !isApproved && pendingFolderIds.has(node.id);
+  const isLocked = guestMode || (!!user && !user.fullAccess && !isApproved && !isPending);
 
   // Start expanded if this node is on the active path; user can toggle freely after that
   const [expanded, setExpanded] = useState(() => activePath.has(node.id));

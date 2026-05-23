@@ -75,8 +75,8 @@ function renderContent(text: string) {
     return (
       <section key={i} className="about-view__section">
         {lines.map((line, j) => {
-          if (j === 0 && lines.length > 1) return <h2 key={j}>{line}</h2>;
-          return <p key={j}>{line}</p>;
+          if (j === 0 && lines.length > 1) return <h2 key={j} dir="auto">{line}</h2>;
+          return <p key={j} dir="auto">{line}</p>;
         })}
       </section>
     );
